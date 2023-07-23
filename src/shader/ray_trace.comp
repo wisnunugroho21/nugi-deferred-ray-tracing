@@ -82,7 +82,9 @@ void main() {
   vec3 materialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
   vec3 albedoColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
 
-  vec3 diffuseLight = ubo.background;
+  ShadeRecord directResult = directLambertShade(position, albedoColor, normal, 0u);
+
+  /* vec3 diffuseLight = ubo.background;
   vec3 surfaceNormal = normal;
   vec3 specularLight = vec3(0.0);
 
@@ -109,6 +111,6 @@ void main() {
     specularLight += intensity * blinnTerm;
   }
 
-  vec3 outColor = diffuseLight * albedoColor + specularLight * albedoColor;
-  imageStore(targetImage, ivec2(imgPosition), vec4(outColor, 1.0f));
+  vec3 outColor = diffuseLight * albedoColor + specularLight * albedoColor; */
+  imageStore(targetImage, ivec2(imgPosition), vec4(directResult.radiance, 1.0f));
 }
