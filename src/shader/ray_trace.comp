@@ -87,7 +87,7 @@ void main() {
   for (uint i = 0; i < ubo.numLights; i++) {
     PointLight light = lights[i];
 
-    vec3 lightDirection = normalize(light.position - surfacePosition);
+    vec3 lightDirection = light.position - surfacePosition;
     vec3 unitLightDirection = normalize(lightDirection);
     vec3 lightNormal = pointLightFaceNormal(light, lightDirection, surfacePosition);
 
