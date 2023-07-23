@@ -82,5 +82,33 @@ void main() {
   vec3 materialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
   vec3 albedoColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
 
-  imageStore(targetImage, ivec2(imgPosition), vec4(albedoColor, 1.0f));
+  vec3 diffuseLight = ubo.background;
+  vec3 surfaceNormal = normal;
+  vec3 specularLight = vec3(0.0);
+
+  vec3 cameraPosWorld = ubo.origin;
+  vec3 viewDirection = normalize(cameraPosWorld - position);
+
+  for (int i = 0; i < ubo.numLights; i++) {
+    PointLight light = lights[i];
+
+    vec3 directionToLight = light.position - position;
+    float attenuation = 1.0 / dot(directionToLight, directionToLight);
+    directionToLight = normalize(directionToLight);
+    
+    float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
+    vec3 intensity = light.color * attenuation;
+
+    diffuseLight += intensity * cosAngIncidence;
+
+    // specular light
+    vec3 halAngle = normalize(directionToLight + viewDirection);
+    float blinnTerm = dot(surfaceNormal, halAngle);
+    blinnTerm = clamp(blinnTerm, 0, 1);
+    blinnTerm = pow(blinnTerm, 256.0); // higher value -> sharper light
+    specularLight += intensity * blinnTerm;
+  }
+
+  vec3 outColor = diffuseLight * albedoColor + specularLight * albedoColor;
+  imageStore(targetImage, ivec2(imgPosition), vec4(outColor, 1.0f));
 }
