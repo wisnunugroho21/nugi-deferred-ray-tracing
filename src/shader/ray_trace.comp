@@ -1,0 +1,86 @@
+#version 460
+
+// ------------- layout -------------
+
+#define SHININESS 64
+#define KEPSILON 0.00001
+
+#include "core/struct.glsl"
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(set = 0, binding = 0, rgba32f) uniform writeonly image2D targetImage;
+
+layout(set = 0, binding = 1) uniform readonly RayTraceUbo {
+  vec3 origin;
+  vec3 background;
+  uint numLights;
+} ubo;
+
+layout(set = 0, binding = 2) buffer readonly ObjectSsbo {
+  Object objects[];
+};
+
+layout(set = 0, binding = 3) buffer readonly ObjectBvhSsbo {
+  BvhNode objectBvhNodes[];
+};
+
+layout(set = 0, binding = 4) buffer readonly PrimitiveSsbo {
+  Primitive primitives[];
+};
+
+layout(set = 0, binding = 5) buffer readonly PrimitiveBvhSsbo {
+  BvhNode primitiveBvhNodes[];
+};
+
+layout(set = 0, binding = 6) buffer readonly VertexSsbo {
+  Vertex vertices[];
+};
+
+layout(set = 0, binding = 7) buffer readonly MaterialSsbo {
+  Material materials[];
+};
+
+layout(set = 0, binding = 8) buffer readonly TransformationSsbo {
+  Transformation transformations[];
+};
+
+layout(set = 0, binding = 9) buffer readonly PointLightSsbo {
+  PointLight lights[];
+};
+
+layout(set = 0, binding = 10) buffer readonly LightBvhSsbo {
+  BvhNode lightBvhNodes[];
+};
+
+layout(set = 0, binding = 11, rgba32f) uniform readonly image2D positionResource;
+layout(set = 0, binding = 12, rgba32f) uniform readonly image2D textCoordResource;
+layout(set = 0, binding = 13, rgba32f) uniform readonly image2D normalResource;
+layout(set = 0, binding = 14, rgba32f) uniform readonly image2D albedoColorResource;
+layout(set = 0, binding = 15, rgba32f) uniform readonly image2D materialResource;
+
+layout(push_constant) uniform Push {
+  uint randomSeed;
+} push;
+
+uvec2 imgSize = uvec2(imageSize(targetImage));
+
+#include "core/random.glsl"
+#include "core/trace.glsl"
+#include "core/ggx.glsl"
+#include "core/shape.glsl"
+#include "core/render.glsl"
+#include "core/material.glsl"
+
+// ------------- Main -------------
+
+void main() {
+  uvec2 imgPosition = gl_GlobalInvocationID.xy;
+
+  vec3 position = imageLoad(positionResource, ivec2(imgPosition)).xyz;
+  vec3 normal = imageLoad(normalResource, ivec2(imgPosition)).xyz;
+  vec3 materialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
+  vec3 albedoColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
+
+  imageStore(targetImage, ivec2(imgPosition), vec4(albedoColor, 1.0f));
+}
