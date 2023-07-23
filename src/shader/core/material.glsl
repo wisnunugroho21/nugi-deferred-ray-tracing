@@ -92,7 +92,7 @@ ShadeRecord directGgxShade(vec3 rayDirection, vec3 hitPoint, vec3 surfaceColor, 
     float VoH = max(dot(unitViewDirection, H), 0.001f);
 
     float sqrDistance = lightHit.t * lightHit.t * dot(shadowRay.direction, shadowRay.direction);
-    float area = pointLightArea(lights[lightHit.hitIndex]);
+    float area = pointLightArea();
     float brdf = ggxBrdfValue(NoV, NoL, NoH, VoH, f0, surfaceRoughness);
 
     scat.pdf = ggxPdfValue(NoH, NoL, surfaceRoughness);
@@ -181,7 +181,7 @@ ShadeRecord directLambertShade(vec3 hitPoint, vec3 surfaceColor, vec3 surfaceNor
     float NoL = max(dot(surfaceNormal, unitLightDirection), 0.001f);    
 
     float sqrDistance = lightHit.t * lightHit.t * dot(shadowRay.direction, shadowRay.direction);
-    float area = pointLightArea(lights[lightHit.hitIndex]);
+    float area = pointLightArea();
     float brdf = lambertBrdfValue();
 
     scat.pdf = lambertPdfValue(NoL);

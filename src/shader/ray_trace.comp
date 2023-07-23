@@ -77,15 +77,33 @@ uvec2 imgSize = uvec2(imageSize(targetImage));
 void main() {
   uvec2 imgPosition = gl_GlobalInvocationID.xy;
 
-  vec3 position = imageLoad(positionResource, ivec2(imgPosition)).xyz;
-  vec3 normal = imageLoad(normalResource, ivec2(imgPosition)).xyz;
-  vec3 materialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
-  vec3 albedoColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
+  vec3 surfacePosition = imageLoad(positionResource, ivec2(imgPosition)).xyz;
+  vec3 surfaceNormal = imageLoad(normalResource, ivec2(imgPosition)).xyz;
+  vec3 surfaceMaterialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
+  vec3 surfaceColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
 
-  ShadeRecord directResult = directLambertShade(position, albedoColor, normal, 0u);
+  vec3 finalColor = vec3(0.0);
+
+  for (uint i = 0; i < ubo.numLights; i++) {
+    PointLight light = lights[i];
+
+    vec3 lightDirection = normalize(light.position - surfacePosition);
+    vec3 unitLightDirection = normalize(lightDirection);
+    vec3 lightNormal = pointLightFaceNormal(light, lightDirection, surfacePosition);
+
+    float NloL = max(dot(lightNormal, -1.0f * unitLightDirection), 0.001f);
+    float NoL = max(dot(surfaceNormal, unitLightDirection), 0.001f);    
+
+    float sqrDistance = dot(lightDirection, lightDirection);
+    float area = pointLightArea();
+    float brdf = lambertBrdfValue();
+
+    finalColor += partialIntegrand(surfaceColor, brdf, NoL) * Gfactor(NloL, sqrDistance, area) * light.color;
+  }
+
+  // ShadeRecord directResult = directLambertShade(position, albedoColor, normal, 0u);
 
   /* vec3 diffuseLight = ubo.background;
-  vec3 surfaceNormal = normal;
   vec3 specularLight = vec3(0.0);
 
   vec3 cameraPosWorld = ubo.origin;
@@ -111,6 +129,6 @@ void main() {
     specularLight += intensity * blinnTerm;
   }
 
-  vec3 outColor = diffuseLight * albedoColor + specularLight * albedoColor; */
-  imageStore(targetImage, ivec2(imgPosition), vec4(directResult.radiance, 1.0f));
+  vec3 outColor = diffuseLight * surfaceColor + specularLight * surfaceColor; */
+  imageStore(targetImage, ivec2(imgPosition), vec4(finalColor, 1.0f));
 }

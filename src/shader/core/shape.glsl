@@ -5,7 +5,7 @@ vec3 pointLightFaceNormal(PointLight light, vec3 rayDirection, vec3 origin) {
   return setFaceNormal(rayDirection, outwardNormal);
 }
 
-float pointLightArea(PointLight light) {
+float pointLightArea() {
   return 1.0f;
 }
 
