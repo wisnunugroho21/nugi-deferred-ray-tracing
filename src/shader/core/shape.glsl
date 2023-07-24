@@ -49,6 +49,33 @@ vec3 areaLightRandomDirection(AreaLight light, vec3 origin, uint additionalRando
 
 // ------------- Triangle -------------
 
+vec3 triangleOffsetRayOrigin(vec3 hitPoint, vec3 point0, vec3 point1, vec3 point2,
+  vec2 hitUV, vec3 triangleNormal, vec3 rayDirection) 
+{
+  vec3 hitPointError = abs(hitUV.s * point0) + abs(hitUV.t * point1) + abs((1.0f - hitUV.s - hitUV.t) * point2);
+  hitPointError *= gamma(7);
+
+  float d = dot(abs(triangleNormal), hitPointError);
+  vec3 offset = d * triangleNormal;
+
+  if (dot(rayDirection, triangleNormal) < 0.0f) {
+    offset *= -1.0f;
+  }
+
+  vec3 po = hitPoint + offset;
+
+  if (offset.x > 0) po.x = nextFloatUp(po.x);
+  else if (offset.x < 0) po.x = nextFloatDown(po.x);
+
+  if (offset.y > 0) po.y = nextFloatUp(po.y);
+  else if (offset.y < 0) po.y = nextFloatDown(po.y);
+
+  if (offset.z > 0) po.z = nextFloatUp(po.z);
+  else if (offset.z < 0) po.z = nextFloatDown(po.z);
+
+  return po;
+}
+
 vec3 triangleFaceNormal(uvec3 triIndices, vec3 rayDirection) {
   vec3 v0v1 = vertices[triIndices.y].position.xyz - vertices[triIndices.x].position.xyz;
   vec3 v0v2 = vertices[triIndices.z].position.xyz - vertices[triIndices.x].position.xyz;
