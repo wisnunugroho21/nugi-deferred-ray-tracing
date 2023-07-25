@@ -7,16 +7,12 @@ HitRecord hitPointLight(PointLight light, Ray r, float dirMin, float tMax) {
   vec3 lightDirection = light.position - r.origin;
   vec3 lightNormal = normalize(lightDirection);
 
-  if (dot(normalize(r.direction), lightNormal) < 0.99f) {
+  if (dot(normalize(r.direction), lightNormal) < 0.99f || length(lightDirection) < dirMin) {
     return hit;
   }
 
   float t = length(lightDirection / r.direction);
   if (t > tMax) {
-    return hit;
-  }
-  
-  if (length(lightDirection) < vec3(dirMin)) {
     return hit;
   }
 
@@ -58,15 +54,7 @@ HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
   
   float t = dot(v0v2, qvec) * invDet;
 
-  if (t <= KEPSILON) {
-    return hit;
-  }
-
-  if (t > tMax) {
-    return hit;
-  }
-
-  if (length(t * r.direction) < dirMin) {
+  if (t <= KEPSILON || t > tMax || length(t * r.direction) < dirMin) {
     return hit;
   }
 
@@ -111,15 +99,7 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint tr
   
   float t = dot(v0v2, qvec) * invDet;
 
-  if (t <= KEPSILON) {
-    return hit;
-  }
-
-  if (t > tMax) {
-    return hit;
-  }
-
-  if (length(t * r.direction) < dirMin) {
+  if (t <= KEPSILON || t > tMax || length(t * r.direction) < dirMin) {
     return hit;
   }
 
@@ -147,7 +127,7 @@ bool intersectAABB(Ray r, vec3 boxMin, vec3 boxMax) {
   vec3 t2 = max(dirMin, tMax);
 
   // Update t2 to ensure robust ray-bounds intersection
-  t2 *= 1 + 2 * gamma(3);
+  // t2 *= 1 + 2 * gamma(3);
 
   float tNear = max(max(t1.x, t1.y), t1.z);
   float tFar = min(min(t2.x, t2.y), t2.z);
