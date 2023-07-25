@@ -16,7 +16,7 @@ void main() {
   vec4 accColor = imageLoad(accumulateImage, ivec2(gl_FragCoord.xy));
   vec4 inputColor = imageLoad(inputImage, ivec2(gl_FragCoord.xy));
 
-  vec4 totalColor = clamp(inputColor, 0.0f, 1.0f) / 255.0f;
+  vec4 totalColor = clamp(inputColor, 0.0f, 255.0f) / 255.0f;
   totalColor = (totalColor + accColor * push.randomSeed) / (push.randomSeed + 1.0f);
 
   imageStore(accumulateImage, ivec2(gl_FragCoord.xy), totalColor);

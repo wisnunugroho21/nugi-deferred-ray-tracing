@@ -84,7 +84,7 @@ void main() {
   vec3 surfaceMaterialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
   vec3 surfaceColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
 
-  vec3 hitPoint = surfacePosition + surfaceNormal * 0.001f;
+  vec3 hitPoint = surfacePosition + surfaceNormal * 0.1f;
   ShadeRecord indirectShadeResult, directShadeResult;
 
   if (surfaceMaterialParams.x >= randomFloat(0)) {
@@ -101,8 +101,8 @@ void main() {
   Ray curRay = indirectShadeResult.nextRay;
   
   for(uint i = 1; i < 50; i++) {
-    HitRecord objectHit = hitObjectBvh(curRay, 0.001f, FLT_MAX);
-    HitRecord lightHit = hitLightBvh(curRay, 0.001f, FLT_MAX);
+    HitRecord objectHit = hitObjectBvh(curRay, 0.1f, FLT_MAX);
+    HitRecord lightHit = hitLightBvh(curRay, 0.1f, FLT_MAX);
 
     if (!objectHit.isHit && !lightHit.isHit) {
       totalRadiance = totalRadiance + totalIndirect * ubo.background;
