@@ -103,7 +103,7 @@ void main() {
     finalColor += partialIntegrand(surfaceColor, brdf, NoL) * Gfactor(NloL, sqrDistance, area) * light.color;
   } */
 
-  ShadeRecord directResult = directLambertShade(position, albedoColor, normal, 0u);
+  ShadeRecord directResult = directLambertShade(surfacePosition, surfaceColor, surfaceNormal, 0u);
 
   /* vec3 diffuseLight = ubo.background;
   vec3 specularLight = vec3(0.0);
