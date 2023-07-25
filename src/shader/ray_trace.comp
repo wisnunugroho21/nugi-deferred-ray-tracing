@@ -84,53 +84,53 @@ void main() {
   vec3 surfaceMaterialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
   vec3 surfaceColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
 
-  /* vec3 finalColor = vec3(0.0);
+  vec3 hitPoint = surfacePosition + surfaceNormal * 0.001f;
+  ShadeRecord indirectShadeResult, directShadeResult;
 
-  for (uint i = 0; i < ubo.numLights; i++) {
-    PointLight light = lights[i];
-
-    vec3 lightDirection = light.position - surfacePosition;
-    vec3 unitLightDirection = normalize(lightDirection);
-    vec3 lightNormal = pointLightFaceNormal(light, lightDirection, surfacePosition);
-
-    float NloL = max(dot(lightNormal, -1.0f * unitLightDirection), 0.001f);
-    float NoL = max(dot(surfaceNormal, unitLightDirection), 0.001f);    
-
-    float sqrDistance = dot(lightDirection, lightDirection);
-    float area = pointLightArea();
-    float brdf = lambertBrdfValue();
-
-    finalColor += partialIntegrand(surfaceColor, brdf, NoL) * Gfactor(NloL, sqrDistance, area) * light.color;
-  } */
-
-  ShadeRecord directResult = directLambertShade(surfacePosition, surfaceColor, surfaceNormal, 0u);
-
-  /* vec3 diffuseLight = ubo.background;
-  vec3 specularLight = vec3(0.0);
-
-  vec3 cameraPosWorld = ubo.origin;
-  vec3 viewDirection = normalize(cameraPosWorld - position);
-
-  for (int i = 0; i < ubo.numLights; i++) {
-    PointLight light = lights[i];
-
-    vec3 directionToLight = light.position - position;
-    float attenuation = 1.0 / dot(directionToLight, directionToLight);
-    directionToLight = normalize(directionToLight);
-    
-    float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
-    vec3 intensity = light.color * attenuation;
-
-    diffuseLight += intensity * cosAngIncidence;
-
-    // specular light
-    vec3 halAngle = normalize(directionToLight + viewDirection);
-    float blinnTerm = dot(surfaceNormal, halAngle);
-    blinnTerm = clamp(blinnTerm, 0, 1);
-    blinnTerm = pow(blinnTerm, 256.0); // higher value -> sharper light
-    specularLight += intensity * blinnTerm;
+  if (surfaceMaterialParams.x >= randomFloat(0)) {
+    indirectShadeResult = indirectGgxShade(hitPoint - ubo.origin, hitPoint, surfaceColor, surfaceNormal, surfaceMaterialParams.y, surfaceMaterialParams.z, 0u);
+    directShadeResult = directGgxShade(hitPoint - ubo.origin, hitPoint, surfaceColor, surfaceNormal, surfaceMaterialParams.y, surfaceMaterialParams.z, 0u);
+  } else {
+    indirectShadeResult = indirectLambertShade(hitPoint, surfaceColor, surfaceNormal, 0u);
+    directShadeResult = directLambertShade(hitPoint, surfaceColor, surfaceNormal, 0u);
   }
 
-  vec3 outColor = diffuseLight * surfaceColor + specularLight * surfaceColor; */
-  imageStore(targetImage, ivec2(imgPosition), vec4(directResult.radiance, 1.0f));
+  vec3 totalRadiance = directShadeResult.radiance;
+  vec3 totalIndirect = indirectShadeResult.radiance;
+
+  Ray curRay = indirectShadeResult.nextRay;
+  
+  for(uint i = 1; i < 50; i++) {
+    HitRecord objectHit = hitObjectBvh(curRay, 0.001f, FLT_MAX);
+    HitRecord lightHit = hitLightBvh(curRay, 0.001f, FLT_MAX);
+
+    if (!objectHit.isHit && !lightHit.isHit) {
+      totalRadiance = totalRadiance + totalIndirect * ubo.background;
+      break;
+    }
+    
+    if (lightHit.isHit && (!objectHit.isHit || lightHit.t < objectHit.t)) {
+      totalRadiance = totalRadiance + totalIndirect * Gfactor(curRay, lightHit) * lights[lightHit.hitIndex].color;
+      break;
+    }
+
+    totalIndirect = totalIndirect / indirectShadeResult.pdf;
+
+    if (objectHit.metallicness >= randomFloat(i)) {
+      indirectShadeResult = indirectGgxShade(curRay, objectHit, i);
+      directShadeResult = directGgxShade(curRay, objectHit, i);
+    } else {
+      indirectShadeResult = indirectLambertShade(objectHit, i);
+      directShadeResult = directLambertShade(objectHit, i);
+    }
+
+    float totalPdf = directShadeResult.pdf + indirectShadeResult.pdf;
+
+    totalRadiance = totalRadiance + totalIndirect * directShadeResult.radiance * directShadeResult.pdf / totalPdf;
+    totalIndirect = totalIndirect * indirectShadeResult.radiance * indirectShadeResult.pdf / totalPdf;
+
+    curRay = indirectShadeResult.nextRay;
+  }
+
+  imageStore(targetImage, ivec2(imgPosition), vec4(totalRadiance, 1.0f));
 }

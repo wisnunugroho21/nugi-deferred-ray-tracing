@@ -30,8 +30,8 @@ float G1_GGX(float cosine, float roughness) {
 }
 
 float G_Smith(float NoV, float NoL, float roughness) {
-  float g1_l = G1_GGX(NoL, roughness);
-  float g1_v = G1_GGX(NoV, roughness);
+  float g1_l = G1_GGX_Schlick(NoL, roughness);
+  float g1_v = G1_GGX_Schlick(NoV, roughness);
 
   return g1_l * g1_v;
 }
