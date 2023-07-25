@@ -16,7 +16,7 @@ HitRecord hitPointLight(PointLight light, Ray r, float dirMin, float tMax) {
     return hit;
   }
   
-  if (all(lessThan(lightDirection, vec3(dirMin)))) {
+  if (length(lightDirection) < vec3(dirMin)) {
     return hit;
   }
 
@@ -66,9 +66,7 @@ HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
     return hit;
   }
 
-  vec3 hitPoint = rayAt(r, t);
-
-  if (all(lessThan(hitPoint - r.origin, vec3(dirMin)))) {
+  if (length(t * r.direction) < dirMin) {
     return hit;
   }
 
@@ -76,7 +74,7 @@ HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
 
   hit.isHit = true;
   hit.t = t;
-  hit.point = hitPoint;
+  hit.point = rayAt(r, t);
   hit.normal = setFaceNormal(r.direction, outwardNormal);
 
   return hit;
@@ -121,9 +119,7 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint tr
     return hit;
   }
 
-  vec3 hitPoint = rayAt(r, t);
-
-  if (all(lessThan(hitPoint - r.origin, vec3(dirMin)))) {
+  if (length(t * r.direction) < dirMin) {
     return hit;
   }
 
@@ -131,7 +127,7 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint tr
 
   hit.isHit = true;
   hit.t = t;
-  hit.point = (transformations[transformIndex].pointMatrix * vec4(hitPoint, 1.0f)).xyz;
+  hit.point = (transformations[transformIndex].pointMatrix * vec4(rayAt(r, t), 1.0f)).xyz;
   hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * setFaceNormal(r.direction, outwardNormal));
 
   hit.color = materials[materialIndex].baseColor;
