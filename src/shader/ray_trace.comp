@@ -2,7 +2,7 @@
 
 // ------------- layout -------------
 
-#define SHININESS 64
+// #define BACKFACE_CULLING
 #define KEPSILON 0.00001
 
 #include "core/struct.glsl"
@@ -84,7 +84,7 @@ void main() {
   vec3 surfaceMaterialParams = imageLoad(materialResource, ivec2(imgPosition)).xyz;
   vec3 surfaceColor = imageLoad(albedoColorResource, ivec2(imgPosition)).xyz;
 
-  vec3 hitPoint = surfacePosition + surfaceNormal * 0.1f;
+  vec3 hitPoint = surfacePosition + surfaceNormal * 0.001f;
   ShadeRecord indirectShadeResult, directShadeResult;
 
   if (surfaceMaterialParams.x >= randomFloat(0)) {
