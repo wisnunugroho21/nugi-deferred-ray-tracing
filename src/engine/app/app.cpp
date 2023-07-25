@@ -306,7 +306,7 @@ namespace nugiEngine {
 
 		// ----------------------------------------------------------------------------
 
-		pointlights->emplace_back(PointLight{ glm::vec3(277.5f, 275.0f, 277.5f), glm::vec3(100.0f) });
+		pointlights->emplace_back(PointLight{ glm::vec3(277.5f, 275.0f, 277.5f), glm::vec3(3000.0f) });
 
 		// ----------------------------------------------------------------------------
 
