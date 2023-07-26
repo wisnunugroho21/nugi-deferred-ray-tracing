@@ -306,7 +306,7 @@ namespace nugiEngine {
 
 		// ----------------------------------------------------------------------------
 
-		pointlights->emplace_back(PointLight{ glm::vec3(277.5f, 275.0f, 277.5f), glm::vec3(3000.0f) });
+		pointlights->emplace_back(PointLight{ glm::vec3(277.5f, 275.0f, 277.5f), glm::vec3(1000000.0f) });
 
 		// ----------------------------------------------------------------------------
 
@@ -318,7 +318,7 @@ namespace nugiEngine {
 
 		this->primitiveModel->createBuffers();
 
-		this->textures.emplace_back(std::make_unique<EngineTexture>(this->device, "textures/viking_room.png"));
+		// this->textures.emplace_back(std::make_unique<EngineTexture>(this->device, "textures/viking_room.png"));
 		this->numLights = static_cast<uint32_t>(pointlights->size());
 	}
 
