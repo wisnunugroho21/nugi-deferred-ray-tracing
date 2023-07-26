@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../vulkan/image/image.hpp"
+#include "../../vulkan/texture/texture.hpp"
 #include "../../vulkan/renderpass/renderpass.hpp"
 
 #include <vulkan/vulkan.h>
@@ -28,11 +29,11 @@ namespace nugiEngine {
       int width, height;
       EngineDevice &device;
 
-      std::vector<std::shared_ptr<EngineImage>> positionResources;
-      std::vector<std::shared_ptr<EngineImage>> textCoordResources;
-      std::vector<std::shared_ptr<EngineImage>> normalResources;
-      std::vector<std::shared_ptr<EngineImage>> albedoColorResources;
-      std::vector<std::shared_ptr<EngineImage>> materialResources;
+      std::vector<std::shared_ptr<EngineTexture>> positionResources;
+      std::vector<std::shared_ptr<EngineTexture>> textCoordResources;
+      std::vector<std::shared_ptr<EngineTexture>> normalResources;
+      std::vector<std::shared_ptr<EngineTexture>> albedoColorResources;
+      std::vector<std::shared_ptr<EngineTexture>> materialResources;
       std::vector<std::shared_ptr<EngineImage>> depthImages;
 
       std::shared_ptr<EngineRenderPass> renderPass;

@@ -16,6 +16,10 @@ namespace nugiEngine {
     this->createTextureSampler();
   }
 
+  EngineTexture::EngineTexture(EngineDevice &appDevice, std::shared_ptr<EngineImage> image) : appDevice{appDevice}, image{image} {
+    this->createTextureSampler();
+  }
+
   EngineTexture::~EngineTexture() {
     vkDestroySampler(this->appDevice.getLogicalDevice(), this->sampler, nullptr);
   }
@@ -49,7 +53,7 @@ namespace nugiEngine {
 
     stbi_image_free(pixels);
 
-    this->image = std::make_unique<EngineImage>(this->appDevice, texWidth, texHeight, this->mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, 
+    this->image = std::make_shared<EngineImage>(this->appDevice, texWidth, texHeight, this->mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, 
       VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
       VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
       VK_IMAGE_ASPECT_COLOR_BIT);
@@ -92,9 +96,9 @@ namespace nugiEngine {
     }
   }
 
-  VkDescriptorImageInfo EngineTexture::getDescriptorInfo() {
+  VkDescriptorImageInfo EngineTexture::getDescriptorInfo(VkImageLayout desiredImageLayout) {
     VkDescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageLayout = desiredImageLayout;
     imageInfo.imageView = this->image->getImageView();
     imageInfo.sampler = this->sampler;
 

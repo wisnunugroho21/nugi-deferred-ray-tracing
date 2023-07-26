@@ -20,7 +20,7 @@ namespace nugiEngine {
   std::vector<VkDescriptorImageInfo> EngineForwardPassSubRenderer::getPositionInfoResources() {
     std::vector<VkDescriptorImageInfo> descInfos{};
     for (auto &&positionInfo : this->positionResources) {
-      descInfos.emplace_back(positionInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_GENERAL));
+      descInfos.emplace_back(positionInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     }
 
     return descInfos;
@@ -29,7 +29,7 @@ namespace nugiEngine {
   std::vector<VkDescriptorImageInfo> EngineForwardPassSubRenderer::getTextCoordInfoResources() {
     std::vector<VkDescriptorImageInfo> descInfos{};
     for (auto &&textCoordInfo : this->textCoordResources) {
-      descInfos.emplace_back(textCoordInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_GENERAL));
+      descInfos.emplace_back(textCoordInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     }
 
     return descInfos;
@@ -38,7 +38,7 @@ namespace nugiEngine {
   std::vector<VkDescriptorImageInfo> EngineForwardPassSubRenderer::getNormalInfoResources() {
     std::vector<VkDescriptorImageInfo> descInfos{};
     for (auto &&normalInfo : this->normalResources) {
-      descInfos.emplace_back(normalInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_GENERAL));
+      descInfos.emplace_back(normalInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     }
 
     return descInfos;
@@ -47,7 +47,7 @@ namespace nugiEngine {
   std::vector<VkDescriptorImageInfo> EngineForwardPassSubRenderer::getAlbedoColorInfoResources() {
       std::vector<VkDescriptorImageInfo> descInfos{};
       for (auto&& albedoColorInfo : this->albedoColorResources) {
-          descInfos.emplace_back(albedoColorInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_GENERAL));
+          descInfos.emplace_back(albedoColorInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
       }
 
       return descInfos;
@@ -56,7 +56,7 @@ namespace nugiEngine {
   std::vector<VkDescriptorImageInfo> EngineForwardPassSubRenderer::getMaterialInfoResources() {
       std::vector<VkDescriptorImageInfo> descInfos{};
       for (auto&& materialInfo : this->materialResources) {
-          descInfos.emplace_back(materialInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_GENERAL));
+          descInfos.emplace_back(materialInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
       }
 
       return descInfos;
@@ -66,14 +66,14 @@ namespace nugiEngine {
     this->positionResources.clear();
 
     for (int i = 0; i < imageCount; i++) {
-      auto positionResource = std::make_shared<EngineImage>(
+      auto positionResourceImage = std::make_shared<EngineImage>(
         this->device, this->width, this->height, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32G32B32A32_SFLOAT,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->positionResources.push_back(positionResource);
+      this->positionResources.push_back(std::make_shared<EngineTexture>(this->device, positionResourceImage));
     }
   }
 
@@ -81,14 +81,14 @@ namespace nugiEngine {
     this->textCoordResources.clear();
 
     for (int i = 0; i < imageCount; i++) {
-      auto textCoordResource = std::make_shared<EngineImage>(
+      auto textCoordResourceImage = std::make_shared<EngineImage>(
         this->device, this->width, this->height, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32G32B32A32_SFLOAT,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->textCoordResources.push_back(textCoordResource);
+      this->textCoordResources.push_back(std::make_shared<EngineTexture>(this->device, textCoordResourceImage));
     }
   }
 
@@ -96,14 +96,14 @@ namespace nugiEngine {
     this->normalResources.clear();
 
     for (int i = 0; i < imageCount; i++) {
-      auto normalResource = std::make_shared<EngineImage>(
+      auto normalResourceImage = std::make_shared<EngineImage>(
         this->device, this->width, this->height, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32G32B32A32_SFLOAT,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->normalResources.push_back(normalResource);
+      this->normalResources.push_back(std::make_shared<EngineTexture>(this->device, normalResourceImage));
     }
   }
 
@@ -111,14 +111,14 @@ namespace nugiEngine {
     this->albedoColorResources.clear();
 
     for (int i = 0; i < imageCount; i++) {
-      auto colorImage = std::make_shared<EngineImage>(
+      auto colorResourceImage = std::make_shared<EngineImage>(
         this->device, this->width, this->height, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32G32B32A32_SFLOAT,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->albedoColorResources.push_back(colorImage);
+      this->albedoColorResources.push_back(std::make_shared<EngineTexture>(this->device, colorResourceImage));
     }
   }
 
@@ -126,14 +126,14 @@ namespace nugiEngine {
     this->materialResources.clear();
 
     for (int i = 0; i < imageCount; i++) {
-      auto materialResource = std::make_shared<EngineImage>(
+      auto materialResourceImage = std::make_shared<EngineImage>(
         this->device, this->width, this->height, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32G32B32A32_SFLOAT,
-        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->materialResources.push_back(materialResource);
+      this->materialResources.push_back(std::make_shared<EngineTexture>(this->device, materialResourceImage));
     }
   }
 
@@ -302,11 +302,11 @@ namespace nugiEngine {
 
     for (int i = 0; i < imageCount; i++) {
 			renderPassBuilder.addViewImages({
-        this->positionResources[i]->getImageView(),
-        this->textCoordResources[i]->getImageView(),
-        this->normalResources[i]->getImageView(),
-        this->albedoColorResources[i]->getImageView(),
-        this->materialResources[i]->getImageView(),
+        this->positionResources[i]->getTextureImage()->getImageView(),
+        this->textCoordResources[i]->getTextureImage()->getImageView(),
+        this->normalResources[i]->getTextureImage()->getImageView(),
+        this->albedoColorResources[i]->getTextureImage()->getImageView(),
+        this->materialResources[i]->getTextureImage()->getImageView(),
         this->depthImages[i]->getImageView(),
       });
     }
@@ -361,31 +361,31 @@ namespace nugiEngine {
 	}
 
   void EngineForwardPassSubRenderer::transferFrame(std::shared_ptr<EngineCommandBuffer> commandBuffer, uint32_t imageIndex) {
-    this->positionResources[imageIndex]->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL, 
+    this->positionResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
       VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
       commandBuffer);
 
-    this->textCoordResources[imageIndex]->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL, 
+    this->textCoordResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
       VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
       commandBuffer);
 
-    this->normalResources[imageIndex]->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL, 
+    this->normalResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
       VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
       commandBuffer);
 
-    this->albedoColorResources[imageIndex]->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL, 
+    this->albedoColorResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
       VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
       commandBuffer);
 
-    this->materialResources[imageIndex]->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL, 
+    this->materialResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
       VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
