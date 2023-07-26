@@ -16,8 +16,10 @@ namespace nugiEngine
   class EngineTexture
   {
     public:
-      EngineTexture(EngineDevice &appDevice, const char* textureFileName);
-      EngineTexture(EngineDevice &appDevice, std::shared_ptr<EngineImage> image);
+      EngineTexture(EngineDevice &appDevice, const char* textureFileName, VkFilter filterMode, VkSamplerAddressMode addressMode, 
+        VkBool32 anistropyEnable, VkBorderColor borderColor, VkCompareOp compareOp, VkSamplerMipmapMode mipmapMode);
+      EngineTexture(EngineDevice &appDevice, std::shared_ptr<EngineImage> image, VkFilter filterMode, VkSamplerAddressMode addressMode, 
+        VkBool32 anistropyEnable, VkBorderColor borderColor, VkCompareOp compareOp, VkSamplerMipmapMode mipmapMode);
 
       ~EngineTexture();
 
@@ -32,7 +34,8 @@ namespace nugiEngine
       uint32_t mipLevels;
 
       void createTextureImage(const char* textureFileName);
-      void createTextureSampler();
+      void createTextureSampler(VkFilter filterMode, VkSamplerAddressMode addressMode, VkBool32 anistropyEnable, 
+        VkBorderColor borderColor, VkCompareOp compareOp, VkSamplerMipmapMode mipmapMode);
   };
   
   

@@ -73,7 +73,9 @@ namespace nugiEngine {
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->positionResources.push_back(std::make_shared<EngineTexture>(this->device, positionResourceImage));
+      this->positionResources.push_back(std::make_shared<EngineTexture>(this->device, positionResourceImage, VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
+        VK_SAMPLER_MIPMAP_MODE_LINEAR));
     }
   }
 
@@ -88,7 +90,9 @@ namespace nugiEngine {
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->textCoordResources.push_back(std::make_shared<EngineTexture>(this->device, textCoordResourceImage));
+      this->textCoordResources.push_back(std::make_shared<EngineTexture>(this->device, textCoordResourceImage, VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
+        VK_SAMPLER_MIPMAP_MODE_LINEAR));
     }
   }
 
@@ -103,7 +107,9 @@ namespace nugiEngine {
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->normalResources.push_back(std::make_shared<EngineTexture>(this->device, normalResourceImage));
+      this->normalResources.push_back(std::make_shared<EngineTexture>(this->device, normalResourceImage, VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
+        VK_SAMPLER_MIPMAP_MODE_LINEAR));
     }
   }
 
@@ -118,7 +124,9 @@ namespace nugiEngine {
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->albedoColorResources.push_back(std::make_shared<EngineTexture>(this->device, colorResourceImage));
+      this->albedoColorResources.push_back(std::make_shared<EngineTexture>(this->device, colorResourceImage, VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
+        VK_SAMPLER_MIPMAP_MODE_LINEAR));
     }
   }
 
@@ -133,7 +141,9 @@ namespace nugiEngine {
         VK_IMAGE_ASPECT_COLOR_BIT
       );
 
-      this->materialResources.push_back(std::make_shared<EngineTexture>(this->device, materialResourceImage));
+      this->materialResources.push_back(std::make_shared<EngineTexture>(this->device, materialResourceImage, VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
+        VK_SAMPLER_MIPMAP_MODE_LINEAR));
     }
   }
 

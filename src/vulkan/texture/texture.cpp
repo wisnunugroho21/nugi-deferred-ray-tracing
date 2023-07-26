@@ -11,13 +11,17 @@
 #include "../command/command_buffer.hpp"
 
 namespace nugiEngine {
-  EngineTexture::EngineTexture(EngineDevice &appDevice, const char* textureFileName) : appDevice{appDevice} {
+  EngineTexture::EngineTexture(EngineDevice &appDevice, const char* textureFileName, VkFilter filterMode, VkSamplerAddressMode addressMode, 
+    VkBool32 anistropyEnable, VkBorderColor borderColor, VkCompareOp compareOp, VkSamplerMipmapMode mipmapMode) : appDevice{appDevice} 
+  {
     this->createTextureImage(textureFileName);
-    this->createTextureSampler();
+    this->createTextureSampler(filterMode, addressMode, anistropyEnable, borderColor, compareOp, mipmapMode);
   }
 
-  EngineTexture::EngineTexture(EngineDevice &appDevice, std::shared_ptr<EngineImage> image) : appDevice{appDevice}, image{image} {
-    this->createTextureSampler();
+  EngineTexture::EngineTexture(EngineDevice &appDevice, std::shared_ptr<EngineImage> image, VkFilter filterMode, VkSamplerAddressMode addressMode, 
+    VkBool32 anistropyEnable, VkBorderColor borderColor, VkCompareOp compareOp, VkSamplerMipmapMode mipmapMode) : appDevice{appDevice}, image{image} 
+  {
+    this->createTextureSampler(filterMode, addressMode, anistropyEnable, borderColor, compareOp, mipmapMode);
   }
 
   EngineTexture::~EngineTexture() {
@@ -67,26 +71,28 @@ namespace nugiEngine {
     // this->image->transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
   }
 
-  void EngineTexture::createTextureSampler() {
+  void EngineTexture::createTextureSampler(VkFilter filterMode, VkSamplerAddressMode addressMode, VkBool32 anistropyEnable, 
+    VkBorderColor borderColor, VkCompareOp compareOp, VkSamplerMipmapMode mipmapMode) 
+  {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.magFilter = filterMode;
+    samplerInfo.minFilter = filterMode;
 
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeU = addressMode;
+    samplerInfo.addressModeV = addressMode;
+    samplerInfo.addressModeW = addressMode;
 
-    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.anisotropyEnable = anistropyEnable;
     samplerInfo.maxAnisotropy = this->appDevice.getProperties().limits.maxSamplerAnisotropy;
 
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.borderColor = borderColor;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
     samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.compareOp = compareOp;
 
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipmapMode = mipmapMode;
     samplerInfo.minLod = 0.0f; // Optional
     samplerInfo.maxLod = static_cast<float>(this->mipLevels);
     samplerInfo.mipLodBias = 0.0f; // Optional
