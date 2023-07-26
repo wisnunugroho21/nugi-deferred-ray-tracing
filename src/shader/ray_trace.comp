@@ -77,12 +77,12 @@ uvec2 imgSize = uvec2(imageSize(targetImage));
 // ------------- Main -------------
 
 void main() {
-  uvec2 imgPosition = gl_GlobalInvocationID.xy;
+  vec2 imgPosition = gl_GlobalInvocationID.xy;
 
-  vec3 surfacePosition = texture(positionSampler, ivec2(imgPosition)).xyz;
-  vec3 surfaceNormal = texture(normalSampler, ivec2(imgPosition)).xyz;
-  vec3 surfaceMaterialParams = texture(materialSampler, ivec2(imgPosition)).xyz;
-  vec3 surfaceColor = texture(albedoColorSampler, ivec2(imgPosition)).xyz;
+  vec3 surfacePosition = texture(positionSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfaceNormal = texture(normalSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfaceMaterialParams = texture(materialSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfaceColor = texture(albedoColorSampler, imgPosition / vec2(imgSize)).xyz;
 
   vec3 hitPoint = surfacePosition + surfaceNormal * 0.001f;
   ShadeRecord indirectShadeResult, directShadeResult;
