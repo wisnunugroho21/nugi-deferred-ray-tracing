@@ -84,7 +84,7 @@ void main() {
   vec3 surfaceMaterialParams = texture(materialSampler, imgPosition / vec2(imgSize)).xyz;
   vec3 surfaceColor = texture(albedoColorSampler, imgPosition / vec2(imgSize)).xyz;
 
-  vec3 hitPoint = surfacePosition + surfaceNormal * 0.001f;
+  vec3 hitPoint = surfacePosition + surfaceNormal * 0.1f;
   ShadeRecord indirectShadeResult, directShadeResult;
 
   if (surfaceMaterialParams.x >= randomFloat(0)) {
