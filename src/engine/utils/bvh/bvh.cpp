@@ -36,10 +36,10 @@ namespace nugiEngine {
     };
   }
 
-  Aabb AreaLightBoundBox::boundingBox() {
+  Aabb TriangleLightBoundBox::boundingBox() {
     return Aabb { 
-      glm::min(glm::min(this->light.point0, this->light.point1), this->light.point2) - eps,
-      glm::max(glm::max(this->light.point0, this->light.point1), this->light.point2) + eps
+      glm::min(glm::min((*this->vertices)[this->light.indices.x].position, (*this->vertices)[this->light.indices.y].position), (*this->vertices)[this->light.indices.z].position) - glm::vec4(eps, 0.0f),
+      glm::max(glm::max((*this->vertices)[this->light.indices.x].position, (*this->vertices)[this->light.indices.y].position), (*this->vertices)[this->light.indices.z].position) + glm::vec4(eps, 0.0f)
     };
   }
 

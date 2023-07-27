@@ -45,8 +45,8 @@ layout(set = 0, binding = 8) buffer readonly TransformationSsbo {
   Transformation transformations[];
 };
 
-layout(set = 0, binding = 9) buffer readonly PointLightSsbo {
-  PointLight lights[];
+layout(set = 0, binding = 9) buffer readonly LightSsbo {
+  TriangleLight lights[];
 };
 
 layout(set = 0, binding = 10) buffer readonly LightBvhSsbo {
@@ -105,7 +105,7 @@ void main() {
     HitRecord lightHit = hitLightBvh(curRay, 0.1f, FLT_MAX);
 
     if (lightHit.isHit && (!objectHit.isHit || lightHit.t < objectHit.t)) {
-      totalRadiance = totalRadiance + totalIndirect * Gfactor(curRay, lightHit) * lights[lightHit.hitIndex].color;
+      totalRadiance = totalRadiance + totalIndirect * GfactorTriangleLight(curRay, lightHit) * lights[lightHit.hitIndex].color;
       break;
     }
 

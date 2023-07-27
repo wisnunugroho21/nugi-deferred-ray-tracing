@@ -24,59 +24,9 @@ HitRecord hitPointLight(PointLight light, Ray r, float dirMin, float tMax) {
   return hit;
 }
 
-// ------------- Area Light -------------
-HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
-  HitRecord hit;
-  hit.isHit = false;
-
-  vec3 v0v1 = light.point1 - light.point0;
-  vec3 v0v2 = light.point2 - light.point0;
-  vec3 pvec = cross(r.direction, v0v2);
-  float det = dot(v0v1, pvec);
-  
-#ifdef BACKFACE_CULLING
-  if (det < KEPSILON) {
-    return hit;
-  }
-#else
-  if (abs(det) < KEPSILON) {
-    return hit;
-  }
-#endif
-    
-  float invDet = 1.0f / det;
-
-  vec3 tvec = r.origin - light.point0;
-  float u = dot(tvec, pvec) * invDet;
-  if (u < 0.0f || u > 1.0f) {
-    return hit;
-  }
-
-  vec3 qvec = cross(tvec, v0v1);
-  float v = dot(r.direction, qvec) * invDet;
-  if (v < 0.0f || u + v > 1.0f) {
-    return hit;
-  }
-  
-  float t = dot(v0v2, qvec) * invDet;
-
-  if (t > tMax || length(t * r.direction) < dirMin) {
-    return hit;
-  }
-
-  vec3 outwardNormal = normalize(cross(v0v1, v0v2));
-
-  hit.isHit = true;
-  hit.t = t;
-  hit.point = rayAt(r, t);
-  hit.normal = setFaceNormal(r.direction, outwardNormal);
-
-  return hit;
-}
-
 // ------------- Triangle -------------
 
-HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint transformIndex, uint materialIndex) {
+HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax) {
   HitRecord hit;
   hit.isHit = false;
 
@@ -119,8 +69,29 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint tr
 
   hit.isHit = true;
   hit.t = t;
-  hit.point = (transformations[transformIndex].pointMatrix * vec4(rayAt(r, t), 1.0f)).xyz;
-  hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * setFaceNormal(r.direction, outwardNormal));
+  hit.point = rayAt(r, t);
+  hit.normal = setFaceNormal(r.direction, outwardNormal);
+
+  return hit;
+}
+
+// ------------- Area Light -------------
+
+HitRecord hitTriangleLight(uvec3 triIndices, Ray r, float dirMin, float tMax) {
+  return hitTriangle(triIndices, r, dirMin, tMax);
+}
+
+// ------------- Primitive -------------
+
+HitRecord hitPrimitive(uvec3 triIndices, Ray r, float dirMin, float tMax, uint transformIndex, uint materialIndex) {
+  HitRecord hit = hitTriangle(triIndices, r, dirMin, tMax);
+
+  if (!hit.isHit) {
+    return hit;
+  }
+
+  hit.point = (transformations[transformIndex].pointMatrix * vec4(hit.point, 1.0f)).xyz;
+  hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * hit.normal);
 
   hit.color = materials[materialIndex].baseColor;
   hit.metallicness = materials[materialIndex].metallicness;
@@ -173,7 +144,7 @@ HitRecord hitPrimitiveBvh(Ray r, float dirMin, float tMax, uint firstBvhIndex, u
 
     uint primIndex = primitiveBvhNodes[currentNode - 1u + firstBvhIndex].leftObjIndex;
     if (primIndex >= 1u) {
-      HitRecord tempHit = hitTriangle(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
+      HitRecord tempHit = hitPrimitive(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
         dirMin, hit.t, transformIndex, primitives[primIndex - 1u + firstPrimitiveIndex].materialIndex);
 
       if (tempHit.isHit) {
@@ -185,7 +156,7 @@ HitRecord hitPrimitiveBvh(Ray r, float dirMin, float tMax, uint firstBvhIndex, u
 
     primIndex = primitiveBvhNodes[currentNode - 1u + firstBvhIndex].rightObjIndex;    
     if (primIndex >= 1u) {
-      HitRecord tempHit = hitTriangle(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
+      HitRecord tempHit = hitPrimitive(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
         dirMin, hit.t, transformIndex, primitives[primIndex - 1u + firstPrimitiveIndex].materialIndex);
 
       if (tempHit.isHit) {
@@ -272,6 +243,23 @@ HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
   hit.isHit = false;
   hit.t = tMax;
 
+  for (uint i = 0; i < ubo.numLights; i++) {
+    HitRecord tempHit = hitTriangleLight(lights[i].indices, r, dirMin, hit.t);
+
+    if (tempHit.isHit) {
+      hit = tempHit;
+      hit.hitIndex = i;
+    }
+  }
+
+  return hit;
+}
+
+/* HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
+  HitRecord hit;
+  hit.isHit = false;
+  hit.t = tMax;
+
   uint stack[30];
   stack[0] = 1u;
 
@@ -321,4 +309,4 @@ HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
   }
 
   return hit;
-}
+} */

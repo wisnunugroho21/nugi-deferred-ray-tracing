@@ -26,11 +26,8 @@ struct PointLight {
   vec3 color;
 };
 
-struct AreaLight {
-  vec3 point0;
-  vec3 point1;
-  vec3 point2; 
-
+struct TriangleLight {
+  uvec3 indices;
   vec3 color;
 };
 
