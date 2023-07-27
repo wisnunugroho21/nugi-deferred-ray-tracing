@@ -60,7 +60,7 @@ HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
   
   float t = dot(v0v2, qvec) * invDet;
 
-  if (t <= KEPSILON || t > tMax || length(t * r.direction) < dirMin) {
+  if (t > tMax || length(t * r.direction) < dirMin) {
     return hit;
   }
 
@@ -111,7 +111,7 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint tr
   
   float t = dot(v0v2, qvec) * invDet;
 
-  if (t <= KEPSILON || t > tMax || length(t * r.direction) < dirMin) {
+  if (t > tMax || length(t * r.direction) < dirMin) {
     return hit;
   }
 
