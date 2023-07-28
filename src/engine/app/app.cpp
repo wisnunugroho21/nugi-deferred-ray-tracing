@@ -434,8 +434,8 @@ namespace nugiEngine {
 		};
 
 		VkDescriptorBufferInfo forwardPassbuffersInfo[2] {
-			this->materialModel->getMaterialInfo(),
-			this->transformationModel->getTransformationInfo()
+			this->transformationModel->getTransformationInfo(),
+			this->materialModel->getMaterialInfo()
 		};
 
 		std::vector<VkDescriptorImageInfo> imagesInfo[2] {
