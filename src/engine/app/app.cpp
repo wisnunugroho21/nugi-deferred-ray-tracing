@@ -108,7 +108,7 @@ namespace nugiEngine {
 
 		auto objects = std::make_shared<std::vector<Object>>();
 		auto materials = std::make_shared<std::vector<Material>>();
-		auto pointlights = std::make_shared<std::vector<PointLight>>();
+		auto lights = std::make_shared<std::vector<TriangleLight>>();
 		auto vertices = std::make_shared<std::vector<Vertex>>();
 		auto indices = std::make_shared<std::vector<uint32_t>>();
 
@@ -306,20 +306,26 @@ namespace nugiEngine {
 
 		// ----------------------------------------------------------------------------
 
-		pointlights->emplace_back(PointLight{ glm::vec3(277.5f, 275.0f, 277.5f), glm::vec3(1000000.0f) });
+		vertices->emplace_back(Vertex{ glm::vec4{213.0f, 554.0f, 227.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
+		vertices->emplace_back(Vertex{ glm::vec4{343.0f, 554.0f, 227.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
+		vertices->emplace_back(Vertex{ glm::vec4{343.0f, 554.0f, 332.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
+		vertices->emplace_back(Vertex{ glm::vec4{213.0f, 554.0f, 332.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
+
+		lights->emplace_back(TriangleLight{ glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3(1000.0f) });
+		lights->emplace_back(TriangleLight{ glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3(1000.0f) });
 
 		// ----------------------------------------------------------------------------
 
 		this->objectModel = std::make_unique<EngineObjectModel>(this->device, objects, boundBoxes);
 		this->materialModel = std::make_unique<EngineMaterialModel>(this->device, materials);
-		this->lightModel = std::make_unique<EnginePointLightModel>(this->device, pointlights);
+		this->lightModel = std::make_unique<EngineTriangleLightModel>(this->device, lights);
 		this->transformationModel = std::make_unique<EngineTransformationModel>(this->device, transforms);
 		this->vertexModels = std::make_unique<EngineVertexModel>(this->device, vertices, indices);
 
 		this->primitiveModel->createBuffers();
 
 		// this->textures.emplace_back(std::make_unique<EngineTexture>(this->device, "textures/viking_room.png"));
-		this->numLights = static_cast<uint32_t>(pointlights->size());
+		this->numLights = static_cast<uint32_t>(lights->size());
 	}
 
 	void EngineApp::loadQuadModels() {
@@ -414,7 +420,7 @@ namespace nugiEngine {
 			this->vertexModels->getVertexInfo(),
 			this->materialModel->getMaterialInfo(),
 			this->transformationModel->getTransformationInfo(),
-			this->lightModel->getPointLightInfo(),
+			this->lightModel->getLightInfo(),
 			this->lightModel->getBvhInfo()
 		};
 

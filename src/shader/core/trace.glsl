@@ -24,13 +24,14 @@ HitRecord hitPointLight(PointLight light, Ray r, float dirMin, float tMax) {
   return hit;
 }
 
-// ------------- Area Light -------------
-HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
+// ------------- Triangle Light -------------
+
+HitRecord hitTriangleLight(TriangleLight light, Ray r, float dirMin, float tMax) {
   HitRecord hit;
   hit.isHit = false;
 
-  vec3 v0v1 = light.point1 - light.point0;
-  vec3 v0v2 = light.point2 - light.point0;
+  vec3 v0v1 = light.point1.xyz - light.point0.xyz;
+  vec3 v0v2 = light.point2.xyz - light.point0.xyz;
   vec3 pvec = cross(r.direction, v0v2);
   float det = dot(v0v1, pvec);
   
@@ -46,7 +47,7 @@ HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
     
   float invDet = 1.0f / det;
 
-  vec3 tvec = r.origin - light.point0;
+  vec3 tvec = r.origin - light.point0.xyz;
   float u = dot(tvec, pvec) * invDet;
   if (u < 0.0f || u > 1.0f) {
     return hit;
@@ -76,7 +77,7 @@ HitRecord hitAreaLight(AreaLight light, Ray r, float dirMin, float tMax) {
 
 // ------------- Triangle -------------
 
-HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint transformIndex, uint materialIndex) {
+HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax) {
   HitRecord hit;
   hit.isHit = false;
 
@@ -119,8 +120,23 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax, uint tr
 
   hit.isHit = true;
   hit.t = t;
-  hit.point = (transformations[transformIndex].pointMatrix * vec4(rayAt(r, t), 1.0f)).xyz;
-  hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * setFaceNormal(r.direction, outwardNormal));
+  hit.point = rayAt(r, t);
+  hit.normal = setFaceNormal(r.direction, outwardNormal);
+
+  return hit;
+}
+
+// ------------- Primitive -------------
+
+HitRecord hitPrimitive(uvec3 triIndices, Ray r, float dirMin, float tMax, uint transformIndex, uint materialIndex) {
+  HitRecord hit = hitTriangle(triIndices, r, dirMin, tMax);
+
+  if (!hit.isHit) {
+    return hit;
+  }
+
+  hit.point = (transformations[transformIndex].pointMatrix * vec4(hit.point, 1.0f)).xyz;
+  hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * hit.normal);
 
   hit.color = materials[materialIndex].baseColor;
   hit.metallicness = materials[materialIndex].metallicness;
@@ -173,7 +189,7 @@ HitRecord hitPrimitiveBvh(Ray r, float dirMin, float tMax, uint firstBvhIndex, u
 
     uint primIndex = primitiveBvhNodes[currentNode - 1u + firstBvhIndex].leftObjIndex;
     if (primIndex >= 1u) {
-      HitRecord tempHit = hitTriangle(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
+      HitRecord tempHit = hitPrimitive(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
         dirMin, hit.t, transformIndex, primitives[primIndex - 1u + firstPrimitiveIndex].materialIndex);
 
       if (tempHit.isHit) {
@@ -185,7 +201,7 @@ HitRecord hitPrimitiveBvh(Ray r, float dirMin, float tMax, uint firstBvhIndex, u
 
     primIndex = primitiveBvhNodes[currentNode - 1u + firstBvhIndex].rightObjIndex;    
     if (primIndex >= 1u) {
-      HitRecord tempHit = hitTriangle(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
+      HitRecord tempHit = hitPrimitive(primitives[primIndex - 1u + firstPrimitiveIndex].indices, r, 
         dirMin, hit.t, transformIndex, primitives[primIndex - 1u + firstPrimitiveIndex].materialIndex);
 
       if (tempHit.isHit) {
@@ -272,6 +288,23 @@ HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
   hit.isHit = false;
   hit.t = tMax;
 
+  for (uint i = 0; i < ubo.numLights; i++) {
+    HitRecord tempHit = hitTriangleLight(lights[i], r, dirMin, hit.t);
+
+    if (tempHit.isHit) {
+      hit = tempHit;
+      hit.hitIndex = i;
+    }
+  }
+
+  return hit;
+}
+
+/* HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
+  HitRecord hit;
+  hit.isHit = false;
+  hit.t = tMax;
+
   uint stack[30];
   stack[0] = 1u;
 
@@ -321,4 +354,4 @@ HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
   }
 
   return hit;
-}
+} */

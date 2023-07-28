@@ -71,7 +71,8 @@ ShadeRecord directGgxShade(vec3 rayDirection, vec3 hitPoint, vec3 surfaceColor, 
   scat.pdf = 0.0f;
 
   shadowRay.origin = hitPoint;
-  shadowRay.direction = pointLightRandomDirection(lights[randomUint(0, ubo.numLights - 1u, additionalRandomSeed)], hitPoint);
+  shadowRay.direction = triangleLightRandomDirection(lights[randomUint(0, ubo.numLights - 1u, additionalRandomSeed)], 
+    hitPoint, additionalRandomSeed);
 
   HitRecord occludedHit = hitObjectBvh(shadowRay, 0.1f, FLT_MAX);
   HitRecord lightHit = hitLightBvh(shadowRay, 0.1f, FLT_MAX);
@@ -92,7 +93,7 @@ ShadeRecord directGgxShade(vec3 rayDirection, vec3 hitPoint, vec3 surfaceColor, 
     float VoH = max(dot(unitViewDirection, H), 0.001f);
 
     float sqrDistance = lightHit.t * lightHit.t * dot(shadowRay.direction, shadowRay.direction);
-    float area = pointLightArea();
+    float area = triangleLightArea(lights[lightHit.hitIndex]);
     float brdf = ggxBrdfValue(NoV, NoL, NoH, VoH, f0, surfaceRoughness);
 
     scat.pdf = ggxPdfValue(NoH, NoL, surfaceRoughness);
@@ -164,7 +165,8 @@ ShadeRecord directLambertShade(vec3 hitPoint, vec3 surfaceColor, vec3 surfaceNor
   scat.pdf = 0.0f;
 
   shadowRay.origin = hitPoint;
-  shadowRay.direction = pointLightRandomDirection(lights[randomUint(0, ubo.numLights - 1u, additionalRandomSeed)], hitPoint);
+  shadowRay.direction = triangleLightRandomDirection(lights[randomUint(0, ubo.numLights - 1u, additionalRandomSeed)], 
+    hitPoint, additionalRandomSeed);
 
   HitRecord occludedHit = hitObjectBvh(shadowRay, 0.1f, FLT_MAX);
   HitRecord lightHit = hitLightBvh(shadowRay, 0.1f, FLT_MAX);
@@ -176,7 +178,7 @@ ShadeRecord directLambertShade(vec3 hitPoint, vec3 surfaceColor, vec3 surfaceNor
     float NoL = max(dot(surfaceNormal, unitLightDirection), 0.001f);    
 
     float sqrDistance = lightHit.t * lightHit.t * dot(shadowRay.direction, shadowRay.direction);
-    float area = pointLightArea();
+    float area = triangleLightArea(lights[lightHit.hitIndex]);
     float brdf = lambertBrdfValue();
 
     scat.pdf = lambertPdfValue(NoL);

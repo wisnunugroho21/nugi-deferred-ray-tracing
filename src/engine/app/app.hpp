@@ -9,7 +9,7 @@
 #include "../data/image/ray_trace_image.hpp"
 #include "../data/model/primitive_model.hpp"
 #include "../data/model/object_model.hpp"
-#include "../data/model/point_light_model.hpp"
+#include "../data/model/light/triangle_light_model.hpp"
 #include "../data/model/material_model.hpp"
 #include "../data/model/transformation_model.hpp"
 #include "../data/model/vertex_model.hpp"
@@ -72,7 +72,7 @@ namespace nugiEngine {
 
 			std::unique_ptr<EnginePrimitiveModel> primitiveModel{};
 			std::unique_ptr<EngineObjectModel> objectModel{};
-			std::unique_ptr<EnginePointLightModel> lightModel{};
+			std::unique_ptr<EngineTriangleLightModel> lightModel{};
 			std::unique_ptr<EngineMaterialModel> materialModel{};
 			std::unique_ptr<EngineTransformationModel> transformationModel{};
 			std::shared_ptr<EngineVertexModel> quadModels{};

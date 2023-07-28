@@ -63,10 +63,10 @@ namespace nugiEngine {
     alignas(16) glm::vec3 color;
   };
 
-  struct AreaLight {
+  struct TriangleLight {
     alignas(16) glm::vec3 point0;
     alignas(16) glm::vec3 point1;
-    alignas(16) glm::vec3 point2; 
+    alignas(16) glm::vec3 point2;
 
     alignas(16) glm::vec3 color;
   };

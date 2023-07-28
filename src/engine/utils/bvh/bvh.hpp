@@ -77,10 +77,10 @@ namespace nugiEngine {
     Aabb boundingBox();
   };
 
-  struct AreaLightBoundBox : BoundBox {
-    AreaLight &light;
+  struct TriangleLightBoundBox : BoundBox {
+    TriangleLight &light;
 
-    AreaLightBoundBox(int i, AreaLight &l) : BoundBox(i), light{l} {}
+    TriangleLightBoundBox(int i, TriangleLight &l) : BoundBox(i), light{l} {}
 
     Aabb boundingBox();
   };
