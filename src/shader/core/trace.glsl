@@ -24,6 +24,57 @@ HitRecord hitPointLight(PointLight light, Ray r, float dirMin, float tMax) {
   return hit;
 }
 
+// ------------- Triangle Light -------------
+
+HitRecord hitTriangleLight(TriangleLight light, Ray r, float dirMin, float tMax) {
+  HitRecord hit;
+  hit.isHit = false;
+
+  vec3 v0v1 = light.point1.xyz - light.point0.xyz;
+  vec3 v0v2 = light.point2.xyz - light.point0.xyz;
+  vec3 pvec = cross(r.direction, v0v2);
+  float det = dot(v0v1, pvec);
+  
+#ifdef BACKFACE_CULLING
+  if (det < KEPSILON) {
+    return hit;
+  }
+#else
+  if (abs(det) < KEPSILON) {
+    return hit;
+  }
+#endif
+    
+  float invDet = 1.0f / det;
+
+  vec3 tvec = r.origin - light.point0.xyz;
+  float u = dot(tvec, pvec) * invDet;
+  if (u < 0.0f || u > 1.0f) {
+    return hit;
+  }
+
+  vec3 qvec = cross(tvec, v0v1);
+  float v = dot(r.direction, qvec) * invDet;
+  if (v < 0.0f || u + v > 1.0f) {
+    return hit;
+  }
+  
+  float t = dot(v0v2, qvec) * invDet;
+
+  if (t > tMax || length(t * r.direction) < dirMin) {
+    return hit;
+  }
+
+  vec3 outwardNormal = normalize(cross(v0v1, v0v2));
+
+  hit.isHit = true;
+  hit.t = t;
+  hit.point = rayAt(r, t);
+  hit.normal = setFaceNormal(r.direction, outwardNormal);
+
+  return hit;
+}
+
 // ------------- Triangle -------------
 
 HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax) {
@@ -73,12 +124,6 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax) {
   hit.normal = setFaceNormal(r.direction, outwardNormal);
 
   return hit;
-}
-
-// ------------- Area Light -------------
-
-HitRecord hitTriangleLight(uvec3 triIndices, Ray r, float dirMin, float tMax) {
-  return hitTriangle(triIndices, r, dirMin, tMax);
 }
 
 // ------------- Primitive -------------
@@ -244,7 +289,7 @@ HitRecord hitLightBvh(Ray r, float dirMin, float tMax) {
   hit.t = tMax;
 
   for (uint i = 0; i < ubo.numLights; i++) {
-    HitRecord tempHit = hitTriangleLight(lights[i].indices, r, dirMin, hit.t);
+    HitRecord tempHit = hitTriangleLight(lights[i], r, dirMin, hit.t);
 
     if (tempHit.isHit) {
       hit = tempHit;

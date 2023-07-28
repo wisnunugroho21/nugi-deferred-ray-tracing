@@ -13,6 +13,40 @@ vec3 pointLightRandomDirection(PointLight light, vec3 origin) {
   return light.position - origin;
 }
 
+// ------------- Triangle Light -------------
+
+vec3 triangleLightFaceNormal(TriangleLight light, vec3 rayDirection) {
+  vec3 v0v1 = light.point1.xyz - light.point0.xyz;
+  vec3 v0v2 = light.point2.xyz - light.point0.xyz;
+
+  vec3 outwardNormal = normalize(cross(v0v1, v0v2));
+  return setFaceNormal(rayDirection, outwardNormal);
+}
+
+float triangleLightArea(TriangleLight light) {
+  vec3 v0v1 = light.point1.xyz - light.point0.xyz;
+  vec3 v0v2 = light.point2.xyz - light.point0.xyz;
+
+  vec3 pvec = cross(v0v1, v0v2);
+  return 0.5 * sqrt(dot(pvec, pvec)); 
+}
+
+vec3 triangleLightRandomDirection(TriangleLight light, vec3 origin, uint additionalRandomSeed) {
+  vec3 v0v1 = light.point1.xyz - light.point0.xyz;
+  vec3 v0v2 = light.point2.xyz - light.point0.xyz;
+
+  float u1 = randomFloat(additionalRandomSeed);
+  float u2 = randomFloat(additionalRandomSeed + 1);
+
+  if (u1 + u2 > 1) {
+    u1 = 1 - u1;
+    u2 = 1 - u2;
+  }
+
+  vec3 randomTriangle = u1 * v0v1 + u2 * v0v2 + light.point0.xyz;
+  return randomTriangle - origin;
+}
+
 // ------------- Triangle -------------
 
 vec3 triangleOffsetRayOrigin(vec3 hitPoint, vec3 point0, vec3 point1, vec3 point2,

@@ -79,9 +79,8 @@ namespace nugiEngine {
 
   struct TriangleLightBoundBox : BoundBox {
     TriangleLight &light;
-    std::shared_ptr<std::vector<Vertex>> vertices;
 
-    TriangleLightBoundBox(int i, TriangleLight &l, std::shared_ptr<std::vector<Vertex>> v) : BoundBox(i), light{l}, vertices{v} {}
+    TriangleLightBoundBox(int i, TriangleLight &l) : BoundBox(i), light{l} {}
 
     Aabb boundingBox();
   };

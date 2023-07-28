@@ -16,8 +16,7 @@
 namespace nugiEngine {
 	class EngineTriangleLightModel {
     public:
-      EngineTriangleLightModel(EngineDevice &device, std::shared_ptr<std::vector<TriangleLight>> triangleLights, 
-        std::shared_ptr<std::vector<Vertex>> vertices,
+      EngineTriangleLightModel(EngineDevice &device, std::shared_ptr<std::vector<TriangleLight>> triangleLights,
         std::shared_ptr<EngineCommandBuffer> commandBuffer = nullptr);
 
       VkDescriptorBufferInfo getLightInfo() { return this->triangleLightBuffer->descriptorInfo(); }

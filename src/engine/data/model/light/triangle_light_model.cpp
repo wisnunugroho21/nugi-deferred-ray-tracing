@@ -9,12 +9,12 @@
 
 namespace nugiEngine {
 	EngineTriangleLightModel::EngineTriangleLightModel(EngineDevice &device, std::shared_ptr<std::vector<TriangleLight>> triangleLights, 
-		std::shared_ptr<std::vector<Vertex>> vertices, std::shared_ptr<EngineCommandBuffer> commandBuffer) : engineDevice{device} 
+		std::shared_ptr<EngineCommandBuffer> commandBuffer) : engineDevice{device} 
 	{
 		std::vector<std::shared_ptr<BoundBox>> boundBoxes;
 
 		for (int i = 0; i < triangleLights->size(); i++) {
-			boundBoxes.push_back(std::make_shared<TriangleLightBoundBox>(TriangleLightBoundBox{ i + 1, (*triangleLights)[i], vertices}));
+			boundBoxes.push_back(std::make_shared<TriangleLightBoundBox>(TriangleLightBoundBox{ i + 1, (*triangleLights)[i] }));
 		}
 
 		this->createBuffers(triangleLights, createBvh(boundBoxes), commandBuffer);

@@ -311,14 +311,14 @@ namespace nugiEngine {
 		vertices->emplace_back(Vertex{ glm::vec4{343.0f, 554.0f, 332.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
 		vertices->emplace_back(Vertex{ glm::vec4{213.0f, 554.0f, 332.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
 
-		lights->emplace_back(TriangleLight{ glm::uvec3(20u, 21u, 22u), glm::vec3(10000.0f, 10000.0f, 10000.0f) });
-		lights->emplace_back(TriangleLight{ glm::uvec3(22u, 23u, 20u), glm::vec3(10000.0f, 10000.0f, 10000.0f) });
+		lights->emplace_back(TriangleLight{ glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3(1000.0f) });
+		lights->emplace_back(TriangleLight{ glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3(1000.0f) });
 
 		// ----------------------------------------------------------------------------
 
 		this->objectModel = std::make_unique<EngineObjectModel>(this->device, objects, boundBoxes);
 		this->materialModel = std::make_unique<EngineMaterialModel>(this->device, materials);
-		this->lightModel = std::make_unique<EngineTriangleLightModel>(this->device, lights, vertices);
+		this->lightModel = std::make_unique<EngineTriangleLightModel>(this->device, lights);
 		this->transformationModel = std::make_unique<EngineTransformationModel>(this->device, transforms);
 		this->vertexModels = std::make_unique<EngineVertexModel>(this->device, vertices, indices);
 
