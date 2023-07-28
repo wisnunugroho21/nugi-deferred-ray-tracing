@@ -16,9 +16,16 @@ layout(set = 0, binding = 2) buffer readonly MaterialSsbo {
   Material materials[];
 };
 
+layout(set = 0, binding = 3) uniform sampler2D colorTextureSamplers[1];
+
 void main() {
 	positionResource = vec4(positionFrag, 1.0f);
   normalResource = vec4(normalFrag, 1.0f);
-  albedoColorResource = vec4(materials[materialIndexFrag].baseColor, 1.0f);
 	materialResource = vec4(materials[materialIndexFrag].metallicness, materials[materialIndexFrag].roughness, materials[materialIndexFrag].fresnelReflect, 1.0f);
+
+  if (materials[materialIndexFrag].colorTextureIndex == 0u) {
+    albedoColorResource = vec4(materials[materialIndexFrag].baseColor, 1.0f);
+  } else {
+    albedoColorResource = texture(colorTextureSamplers[materials[materialIndexFrag].colorTextureIndex - 1u], textCoordFrag);
+  }
 }

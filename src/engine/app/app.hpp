@@ -83,7 +83,7 @@ namespace nugiEngine {
 			std::unique_ptr<EngineSamplingDescSet> samplingDescSet{};
 			std::unique_ptr<EngineForwardPassDescSet> forwardPassDescSet{};
 
-			std::vector<std::unique_ptr<EngineTexture>> textures{};
+			std::vector<std::unique_ptr<EngineTexture>> colorTextures{};
 
 			uint32_t randomSeed = 0;
 			uint32_t numLights = 0;
