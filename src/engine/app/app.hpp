@@ -24,6 +24,7 @@
 #include "../renderer_system/trace_ray_render_system.hpp"
 #include "../renderer_system/sampling_render_system.hpp"
 #include "../renderer_system/forward_pass_render_system.hpp"
+#include "../utils/load_model/load_model.hpp"
 
 #include <memory>
 #include <vector>
