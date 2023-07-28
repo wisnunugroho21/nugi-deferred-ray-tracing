@@ -460,7 +460,7 @@ namespace nugiEngine {
 		this->samplingDescSet = std::make_unique<EngineSamplingDescSet>(this->device, this->renderer->getDescriptorPool(), imagesInfo);
 		this->forwardPassDescSet = std::make_unique<EngineForwardPassDescSet>(this->device, this->renderer->getDescriptorPool(), this->rasterUniform->getBuffersInfo(), forwardPassbuffersInfo, texturesInfo);
 		this->rayTraceDescSet = std::make_unique<EngineRayTraceDescSet>(this->device, this->renderer->getDescriptorPool(), this->rayTraceUniforms->getBuffersInfo(), 
-			this->rayTraceImage->getImagesInfo(), rayTracebuffersInfo, resourcesInfo);
+			this->rayTraceImage->getImagesInfo(), rayTracebuffersInfo, resourcesInfo, texturesInfo);
 
 		this->traceRayRender = std::make_unique<EngineTraceRayRenderSystem>(this->device, this->rayTraceDescSet->getDescSetLayout(), width, height, 1);
 		this->forwardPassRender = std::make_unique<EngineForwardPassRenderSystem>(this->device, this->forwardPassSubRenderer->getRenderPass(), this->forwardPassDescSet->getDescSetLayout());

@@ -58,6 +58,8 @@ layout(set = 0, binding = 12) uniform sampler2D normalSampler;
 layout(set = 0, binding = 13) uniform sampler2D albedoColorSampler;
 layout(set = 0, binding = 14) uniform sampler2D materialSampler;
 
+layout(set = 0, binding = 15) uniform sampler2D colorTextureSamplers[1];
+
 layout(push_constant) uniform Push {
   uint randomSeed;
 } push;
