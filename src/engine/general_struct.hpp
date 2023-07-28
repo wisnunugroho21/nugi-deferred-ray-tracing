@@ -48,7 +48,8 @@ namespace nugiEngine {
     float metallicness;
     float roughness;
     float fresnelReflect;
-    uint32_t textureIndex;
+    
+    uint16_t colorTextureIndex;
   };
 
   struct Transformation {
