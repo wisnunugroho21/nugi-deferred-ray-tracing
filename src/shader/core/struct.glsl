@@ -49,8 +49,7 @@ struct Material {
 	float metallicness;
   float roughness;
   float fresnelReflect;
-  
-  uint colorTextureIndex;
+  uint textureIndex;
 };
 
 struct Transformation {

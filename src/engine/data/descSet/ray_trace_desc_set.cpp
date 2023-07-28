@@ -2,15 +2,13 @@
 
 namespace nugiEngine {
   EngineRayTraceDescSet::EngineRayTraceDescSet(EngineDevice& device, std::shared_ptr<EngineDescriptorPool> descriptorPool, std::vector<VkDescriptorBufferInfo> uniformBufferInfo, 
-		std::vector<VkDescriptorImageInfo> rayTraceImageInfo, VkDescriptorBufferInfo buffersInfo[9], std::vector<VkDescriptorImageInfo> resourcesInfo[4], 
-		std::vector<VkDescriptorImageInfo> texturesInfo[1]) 
+		std::vector<VkDescriptorImageInfo> rayTraceImageInfo, VkDescriptorBufferInfo buffersInfo[9], std::vector<VkDescriptorImageInfo> resourcesInfo[5]) 
 	{
-		this->createDescriptor(device, descriptorPool, uniformBufferInfo, rayTraceImageInfo, buffersInfo, resourcesInfo, texturesInfo);
+		this->createDescriptor(device, descriptorPool, uniformBufferInfo, rayTraceImageInfo, buffersInfo, resourcesInfo);
   }
 
   void EngineRayTraceDescSet::createDescriptor(EngineDevice& device, std::shared_ptr<EngineDescriptorPool> descriptorPool, std::vector<VkDescriptorBufferInfo> uniformBufferInfo, 
-		std::vector<VkDescriptorImageInfo> rayTraceImageInfo, VkDescriptorBufferInfo buffersInfo[9], std::vector<VkDescriptorImageInfo> resourcesInfo[4], 
-		std::vector<VkDescriptorImageInfo> texturesInfo[1]) 
+		std::vector<VkDescriptorImageInfo> rayTraceImageInfo, VkDescriptorBufferInfo buffersInfo[9], std::vector<VkDescriptorImageInfo> resourcesInfo[5]) 
 	{
     this->descSetLayout = 
 			EngineDescriptorSetLayout::Builder(device)
@@ -52,7 +50,7 @@ namespace nugiEngine {
 				.writeImage(12, &resourcesInfo[1][i])
 				.writeImage(13, &resourcesInfo[2][i])
 				.writeImage(14, &resourcesInfo[3][i])
-				.writeImage(15, texturesInfo[0].data(), texturesInfo[0].size())
+				.writeImage(15, &resourcesInfo[4][i])
 				.build(&descSet);
 
 			this->descriptorSets.emplace_back(descSet);
