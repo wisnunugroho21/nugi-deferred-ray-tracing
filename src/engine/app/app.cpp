@@ -443,9 +443,8 @@ namespace nugiEngine {
 			this->accumulateImages->getImagesInfo()
 		};
 
-		std::vector<VkDescriptorImageInfo> resourcesInfo[5] = {
+		std::vector<VkDescriptorImageInfo> resourcesInfo[4] = {
 			this->forwardPassSubRenderer->getPositionInfoResources(),
-			this->forwardPassSubRenderer->getTextCoordInfoResources(),
 			this->forwardPassSubRenderer->getNormalInfoResources(),
 			this->forwardPassSubRenderer->getAlbedoColorInfoResources(),
 			this->forwardPassSubRenderer->getMaterialInfoResources()
