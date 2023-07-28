@@ -8,6 +8,7 @@ namespace nugiEngine {
     : device{device}, width{width}, height{height}
   {
     this->createPositionResources(imageCount);
+    this->createTextCoordResources(imageCount);
     this->createNormalResources(imageCount);
     this->createAlbedoColorResources(imageCount);
     this->createMaterialResources(imageCount);
@@ -20,6 +21,15 @@ namespace nugiEngine {
     std::vector<VkDescriptorImageInfo> descInfos{};
     for (auto &&positionInfo : this->positionResources) {
       descInfos.emplace_back(positionInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    }
+
+    return descInfos;
+  }
+
+  std::vector<VkDescriptorImageInfo> EngineForwardPassSubRenderer::getTextCoordInfoResources() {
+    std::vector<VkDescriptorImageInfo> descInfos{};
+    for (auto &&textCoordInfo : this->textCoordResources) {
+      descInfos.emplace_back(textCoordInfo->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     }
 
     return descInfos;
@@ -64,6 +74,23 @@ namespace nugiEngine {
       );
 
       this->positionResources.push_back(std::make_shared<EngineTexture>(this->device, positionResourceImage, VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
+        VK_SAMPLER_MIPMAP_MODE_LINEAR));
+    }
+  }
+
+  void EngineForwardPassSubRenderer::createTextCoordResources(int imageCount) {
+    this->textCoordResources.clear();
+
+    for (int i = 0; i < imageCount; i++) {
+      auto textCoordResourceImage = std::make_shared<EngineImage>(
+        this->device, this->width, this->height, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32G32B32A32_SFLOAT,
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT, 
+        VK_IMAGE_ASPECT_COLOR_BIT
+      );
+
+      this->textCoordResources.push_back(std::make_shared<EngineTexture>(this->device, textCoordResourceImage, VK_FILTER_LINEAR, 
         VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, 
         VK_SAMPLER_MIPMAP_MODE_LINEAR));
     }
@@ -156,6 +183,24 @@ namespace nugiEngine {
     positionColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     positionColorBlendAttachment.blendEnable = VK_FALSE;
 
+    VkAttachmentDescription textCoordAttachment{};
+    textCoordAttachment.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    textCoordAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    textCoordAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    textCoordAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    textCoordAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    textCoordAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    textCoordAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    textCoordAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference textCoordAttachmentRef = {};
+    textCoordAttachmentRef.attachment = 1;
+    textCoordAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkPipelineColorBlendAttachmentState textCoordColorBlendAttachment{};
+    textCoordColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    textCoordColorBlendAttachment.blendEnable = VK_FALSE;
+
     VkAttachmentDescription normalAttachment{};
     normalAttachment.format = VK_FORMAT_R32G32B32A32_SFLOAT;
     normalAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -167,7 +212,7 @@ namespace nugiEngine {
     normalAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference normalAttachmentRef = {};
-    normalAttachmentRef.attachment = 1;
+    normalAttachmentRef.attachment = 2;
     normalAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkPipelineColorBlendAttachmentState normalColorBlendAttachment{};
@@ -185,7 +230,7 @@ namespace nugiEngine {
     albedoColorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference albedoColorAttachmentRef = {};
-    albedoColorAttachmentRef.attachment = 2;
+    albedoColorAttachmentRef.attachment = 3;
     albedoColorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkPipelineColorBlendAttachmentState albedoColorColorBlendAttachment{};
@@ -203,15 +248,15 @@ namespace nugiEngine {
     materialAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference materialAttachmentRef = {};
-    materialAttachmentRef.attachment = 3;
+    materialAttachmentRef.attachment = 4;
     materialAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkPipelineColorBlendAttachmentState materialColorBlendAttachment{};
     materialColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     materialColorBlendAttachment.blendEnable = VK_FALSE;
 
-    std::vector<VkAttachmentReference> colorAttachmentRefs = { positionAttachmentRef, normalAttachmentRef, 
-      albedoColorAttachmentRef, materialAttachmentRef };
+    std::vector<VkAttachmentReference> colorAttachmentRefs = { positionAttachmentRef, textCoordAttachmentRef, 
+      normalAttachmentRef, albedoColorAttachmentRef, materialAttachmentRef };
 
     VkAttachmentDescription depthAttachment{};
     depthAttachment.format = this->findDepthFormat();
@@ -224,7 +269,7 @@ namespace nugiEngine {
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference depthAttachmentRef{};
-    depthAttachmentRef.attachment = 4;
+    depthAttachmentRef.attachment = 5;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkSubpassDescription subpass = {};
@@ -251,11 +296,13 @@ namespace nugiEngine {
 
     EngineRenderPass::Builder renderPassBuilder = EngineRenderPass::Builder(this->device, this->width, this->height)
       .addAttachments(positionAttachment)
+      .addAttachments(textCoordAttachment)
       .addAttachments(normalAttachment)
 			.addAttachments(albedoColorAttachment)
       .addAttachments(materialAttachment)
 			.addAttachments(depthAttachment)
       .addColorBlendAttachments(positionColorBlendAttachment)
+      .addColorBlendAttachments(textCoordColorBlendAttachment)
       .addColorBlendAttachments(normalColorBlendAttachment)
       .addColorBlendAttachments(albedoColorColorBlendAttachment)
       .addColorBlendAttachments(materialColorBlendAttachment)
@@ -266,6 +313,7 @@ namespace nugiEngine {
     for (int i = 0; i < imageCount; i++) {
 			renderPassBuilder.addViewImages({
         this->positionResources[i]->getTextureImage()->getImageView(),
+        this->textCoordResources[i]->getTextureImage()->getImageView(),
         this->normalResources[i]->getTextureImage()->getImageView(),
         this->albedoColorResources[i]->getTextureImage()->getImageView(),
         this->materialResources[i]->getTextureImage()->getImageView(),
@@ -297,7 +345,8 @@ namespace nugiEngine {
     clearValues[1].color = { 0.0f, 0.0f, 0.0f, 0.0f };
     clearValues[2].color = { 0.0f, 0.0f, 0.0f, 0.0f };
     clearValues[3].color = { 0.0f, 0.0f, 0.0f, 0.0f };
-		clearValues[4].depthStencil = { 1.0f, 0 };
+    clearValues[4].color = { 0.0f, 0.0f, 0.0f, 0.0f };
+		clearValues[5].depthStencil = { 1.0f, 0 };
 
 		renderBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderBeginInfo.pClearValues = clearValues.data();
@@ -323,6 +372,12 @@ namespace nugiEngine {
 
   void EngineForwardPassSubRenderer::transferFrame(std::shared_ptr<EngineCommandBuffer> commandBuffer, uint32_t imageIndex) {
     this->positionResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+      VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
+      VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+      commandBuffer);
+
+    this->textCoordResources[imageIndex]->getTextureImage()->transitionImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
       VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, 
       VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
