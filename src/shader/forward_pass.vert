@@ -10,7 +10,7 @@ layout(location = 4) in uint transformIndex;
 
 layout(location = 0) out vec3 positionFrag;
 layout(location = 1) out vec2 textCoordFrag;
-layout(location = 2) flat out vec3 normalFrag;
+layout(location = 2) out vec3 normalFrag;
 layout(location = 3) flat out vec3 albedoColorFrag;
 layout(location = 4) flat out vec3 materialFrag;
 
