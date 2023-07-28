@@ -5,7 +5,7 @@
 
 namespace nugiEngine
 {
-  LoadedModel loadModelFromFile(const std::string &filePath, uint32_t materialIndex, uint32_t offsetIndex) {
+  LoadedModel loadModelFromFile(const std::string &filePath, uint32_t transformIndex, uint32_t materialIndex, uint32_t vertexOffsetIndex) {
 		tinyobj::attrib_t attrib{};
 		std::vector<tinyobj::shape_t> shapes{};
 		std::vector<tinyobj::material_t> materials{};
@@ -18,6 +18,7 @@ namespace nugiEngine
 		
 		auto primitives = std::make_shared<std::vector<Primitive>>();
 		auto vertices = std::make_shared<std::vector<Vertex>>();
+		auto indices = std::make_shared<std::vector<uint32_t>>();
 
 		for (const auto &shape: shapes) {
 			uint32_t numTriangle = static_cast<uint32_t>(shape.mesh.indices.size()) / 3;
@@ -30,6 +31,10 @@ namespace nugiEngine
 				int textCoordIndex0 = shape.mesh.indices[3 * i + 0].texcoord_index;
 				int textCoordIndex1 = shape.mesh.indices[3 * i + 1].texcoord_index;
 				int textCoordIndex2 = shape.mesh.indices[3 * i + 2].texcoord_index;
+
+				int normalIndex0 = shape.mesh.indices[3 * i + 0].normal_index;
+				int normalIndex1 = shape.mesh.indices[3 * i + 1].normal_index;
+				int normalIndex2 = shape.mesh.indices[3 * i + 2].normal_index;
 
 				Vertex vertex0;
 				Vertex vertex1;
@@ -57,23 +62,23 @@ namespace nugiEngine
 				};
 
         vertex0.normal = glm::vec4{
-					attrib.normals[3 * vertexIndex0 + 0],
-					attrib.normals[3 * vertexIndex0 + 1],
-					attrib.normals[3 * vertexIndex0 + 2],
+					attrib.normals[3 * normalIndex0 + 0],
+					attrib.normals[3 * normalIndex0 + 1],
+					attrib.normals[3 * normalIndex0 + 2],
           1.0f
 				};
 
 				vertex1.normal = glm::vec4{
-					attrib.normals[3 * vertexIndex1 + 0],
-					attrib.normals[3 * vertexIndex1 + 1],
-					attrib.normals[3 * vertexIndex1 + 2],
+					attrib.normals[3 * normalIndex1 + 0],
+					attrib.normals[3 * normalIndex1 + 1],
+					attrib.normals[3 * normalIndex1 + 2],
           1.0f
 				};
 
 				vertex2.normal = glm::vec4{
-					attrib.normals[3 * vertexIndex2 + 0],
-					attrib.normals[3 * vertexIndex2 + 1],
-					attrib.normals[3 * vertexIndex2 + 2],
+					attrib.normals[3 * normalIndex2 + 0],
+					attrib.normals[3 * normalIndex2 + 1],
+					attrib.normals[3 * normalIndex2 + 2],
           1.0f
 				};
 
@@ -98,6 +103,14 @@ namespace nugiEngine
           1.0f
 				};
 
+				vertex0.transformIndex = transformIndex;
+				vertex1.transformIndex = transformIndex;
+				vertex2.transformIndex = transformIndex;
+
+				vertex0.materialIndex = materialIndex;
+				vertex1.materialIndex = materialIndex;
+				vertex2.materialIndex = materialIndex;
+
 				/* if (uniqueVertices.count(vertex0) == 0) {
 					uniqueVertices[vertex0] = static_cast<uint32_t>(vertices->size()) + offsetIndex;
 					vertices->emplace_back(vertex0);
@@ -117,14 +130,17 @@ namespace nugiEngine
 				uint32_t index1 = uniqueVertices[vertex1];
 				uint32_t index2 = uniqueVertices[vertex2]; */
 
-				uint32_t index0 = static_cast<uint32_t>(vertices->size()) + offsetIndex;
+				uint32_t index0 = static_cast<uint32_t>(vertices->size()) + vertexOffsetIndex;
 				vertices->emplace_back(vertex0);
+				indices->emplace_back(index0);
 
-				uint32_t index1 = static_cast<uint32_t>(vertices->size()) + offsetIndex;
+				uint32_t index1 = static_cast<uint32_t>(vertices->size()) + vertexOffsetIndex;
 				vertices->emplace_back(vertex1);
+				indices->emplace_back(index1);
 
-				uint32_t index2 = static_cast<uint32_t>(vertices->size()) + offsetIndex;
+				uint32_t index2 = static_cast<uint32_t>(vertices->size()) + vertexOffsetIndex;
 				vertices->emplace_back(vertex2);
+				indices->emplace_back(index2);
 
 				primitives->emplace_back(Primitive{
 					glm::uvec3{ index0, index1, index2 },
@@ -133,7 +149,7 @@ namespace nugiEngine
 			}
 		}
 
-		return LoadedModel{ primitives, vertices };
+		return LoadedModel{ primitives, vertices, indices };
 	}
   
 } // namespace nugiEngine

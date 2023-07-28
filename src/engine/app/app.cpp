@@ -288,9 +288,14 @@ namespace nugiEngine {
 		objects->emplace_back(Object{ this->primitiveModel->getBvhSize(), this->primitiveModel->getPrimitiveSize(), transformIndex });
 		objectIndex = static_cast<uint32_t>(objects->size() - 1);
 
-		auto loadedModel = loadModelFromFile("models/viking_room.obj", 3u, vertices->size());
+		auto loadedModel = loadModelFromFile("models/viking_room.obj", transformIndex, 3u, vertices->size());
+
 		for (auto &&vertex : *loadedModel.vertices) {
 			vertices->emplace_back(vertex);
+		}
+
+		for (auto &&index : *loadedModel.indices) {
+			indices->emplace_back(index);
 		}
 
 		this->primitiveModel->addPrimitive(loadedModel.primitives, vertices);

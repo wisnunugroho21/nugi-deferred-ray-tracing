@@ -4,9 +4,6 @@
 #include <iostream>
 #include <unordered_map>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
 namespace nugiEngine {
 	EnginePrimitiveModel::EnginePrimitiveModel(EngineDevice &device) : engineDevice{device} {
 		this->primitives = std::make_shared<std::vector<Primitive>>();
