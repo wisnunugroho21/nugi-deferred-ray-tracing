@@ -53,7 +53,6 @@ namespace nugiEngine {
 				this->swapChainSubRenderer->endRenderPass(commandBuffer);
 
 				this->rayTraceImage->finishFrame(commandBuffer, frameIndex);
-				this->accumulateImages->finishFrame(commandBuffer, frameIndex);
 
 				this->renderer->endCommand(commandBuffer);
 				this->renderer->submitRenderCommand(commandBuffer);
