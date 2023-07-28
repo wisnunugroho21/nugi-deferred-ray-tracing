@@ -28,9 +28,10 @@ layout(set = 0, binding = 2) buffer readonly TransformationSsbo {
 };
 
 void main() {
-	gl_Position = ubo.projection * ubo.view * transformations[transformIndex].pointMatrix * position;
+	vec4 positionWorld = transformations[transformIndex].pointMatrix * position;
+	gl_Position = ubo.projection * ubo.view * positionWorld;
 
-	positionFrag = position.xyz;
+	positionFrag = positionWorld.xyz;
 	textCoordFrag = textCoord.xy;
 	normalFrag = normalize(mat3(transformations[transformIndex].normalMatrix) * normal.xyz);
 	albedoColorFrag = materials[materialIndex].baseColor;
