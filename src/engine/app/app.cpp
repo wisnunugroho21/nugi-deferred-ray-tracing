@@ -53,7 +53,6 @@ namespace nugiEngine {
 				this->swapChainSubRenderer->endRenderPass(commandBuffer);
 
 				this->rayTraceImage->finishFrame(commandBuffer, frameIndex);
-				this->accumulateImages->finishFrame(commandBuffer, frameIndex);
 
 				this->renderer->endCommand(commandBuffer);
 				this->renderer->submitRenderCommand(commandBuffer);
@@ -311,8 +310,8 @@ namespace nugiEngine {
 		vertices->emplace_back(Vertex{ glm::vec4{343.0f, 554.0f, 332.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
 		vertices->emplace_back(Vertex{ glm::vec4{213.0f, 554.0f, 332.0f, 1.0f}, glm::vec4{0.0f}, glm::vec4{0.0f, 0.0f, -1.0f, 0.0f}, 0u, 0u });
 
-		lights->emplace_back(TriangleLight{ glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3(1000.0f) });
-		lights->emplace_back(TriangleLight{ glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3(1000.0f) });
+		lights->emplace_back(TriangleLight{ glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 227.0f}, glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3(100.0f) });
+		lights->emplace_back(TriangleLight{ glm::vec3{343.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 332.0f}, glm::vec3{213.0f, 554.0f, 227.0f}, glm::vec3(100.0f) });
 
 		// ----------------------------------------------------------------------------
 
