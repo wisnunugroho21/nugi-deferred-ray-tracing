@@ -53,11 +53,12 @@ layout(set = 0, binding = 10) buffer readonly LightBvhSsbo {
   BvhNode lightBvhNodes[];
 };
 
-layout(set = 0, binding = 11) uniform sampler2D positionSampler;
-layout(set = 0, binding = 12) uniform sampler2D textCoordSampler;
-layout(set = 0, binding = 13) uniform sampler2D normalSampler;
-layout(set = 0, binding = 14) uniform sampler2D albedoColorSampler;
-layout(set = 0, binding = 15) uniform sampler2D materialSampler;
+layout(set = 0, binding = 11) uniform sampler2D positionResourceSampler;
+layout(set = 0, binding = 12) uniform sampler2D normalResourceSampler;
+layout(set = 0, binding = 13) uniform sampler2D albedoColorResourceSampler;
+layout(set = 0, binding = 14) uniform sampler2D materialResourceSampler;
+
+layout(set = 0, binding = 15) uniform sampler2D colorTextureSamplers[1];
 
 layout(push_constant) uniform Push {
   uint randomSeed;
@@ -79,10 +80,10 @@ uvec2 imgSize = uvec2(imageSize(targetImage));
 void main() {
   vec2 imgPosition = gl_GlobalInvocationID.xy;
 
-  vec3 surfacePosition = texture(positionSampler, imgPosition / vec2(imgSize)).xyz;
-  vec3 surfaceNormal = texture(normalSampler, imgPosition / vec2(imgSize)).xyz;
-  vec3 surfaceMaterialParams = texture(materialSampler, imgPosition / vec2(imgSize)).xyz;
-  vec3 surfaceColor = texture(albedoColorSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfacePosition = texture(positionResourceSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfaceNormal = texture(normalResourceSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfaceMaterialParams = texture(materialResourceSampler, imgPosition / vec2(imgSize)).xyz;
+  vec3 surfaceColor = texture(albedoColorResourceSampler, imgPosition / vec2(imgSize)).xyz;
 
   vec3 hitPoint = surfacePosition + surfaceNormal * 0.1f;
   ShadeRecord indirectShadeResult, directShadeResult;

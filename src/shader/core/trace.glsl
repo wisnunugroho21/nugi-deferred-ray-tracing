@@ -75,9 +75,9 @@ HitRecord hitTriangleLight(TriangleLight light, Ray r, float dirMin, float tMax)
   return hit;
 }
 
-// ------------- Triangle -------------
+// ------------- Primitive -------------
 
-HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax) {
+HitRecord hitPrimitive(uvec3 triIndices, Ray r, float dirMin, float tMax, uint transformIndex, uint materialIndex) {
   HitRecord hit;
   hit.isHit = false;
 
@@ -116,29 +116,21 @@ HitRecord hitTriangle(uvec3 triIndices, Ray r, float dirMin, float tMax) {
     return hit;
   }
 
-  vec3 outwardNormal = normalize(cross(v0v1, v0v2));
-
   hit.isHit = true;
   hit.t = t;
-  hit.point = rayAt(r, t);
-  hit.normal = setFaceNormal(r.direction, outwardNormal);
+  hit.point = (transformations[transformIndex].pointMatrix * vec4(rayAt(r, t), 1.0f)).xyz;
 
-  return hit;
-}
+  vec3 outwardNormal = normalize(cross(v0v1, v0v2));
+  hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * setFaceNormal(r.direction, outwardNormal));
 
-// ------------- Primitive -------------
+  vec2 uv = getTotalTextureCoordinate(triIndices, vec2(u, v));
 
-HitRecord hitPrimitive(uvec3 triIndices, Ray r, float dirMin, float tMax, uint transformIndex, uint materialIndex) {
-  HitRecord hit = hitTriangle(triIndices, r, dirMin, tMax);
-
-  if (!hit.isHit) {
-    return hit;
+  if (materials[materialIndex].colorTextureIndex == 0u) {
+    hit.color = materials[materialIndex].baseColor;
+  } else {
+    hit.color = texture(colorTextureSamplers[materials[materialIndex].colorTextureIndex - 1u], uv).xyz;
   }
 
-  hit.point = (transformations[transformIndex].pointMatrix * vec4(hit.point, 1.0f)).xyz;
-  hit.normal = normalize(mat3(transformations[transformIndex].normalMatrix) * hit.normal);
-
-  hit.color = materials[materialIndex].baseColor;
   hit.metallicness = materials[materialIndex].metallicness;
   hit.roughness = materials[materialIndex].roughness;
   hit.fresnelReflect = materials[materialIndex].fresnelReflect;

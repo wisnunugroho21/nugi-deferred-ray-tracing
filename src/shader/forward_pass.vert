@@ -11,19 +11,14 @@ layout(location = 4) in uint transformIndex;
 layout(location = 0) out vec3 positionFrag;
 layout(location = 1) out vec2 textCoordFrag;
 layout(location = 2) out vec3 normalFrag;
-layout(location = 3) flat out vec3 albedoColorFrag;
-layout(location = 4) flat out vec3 materialFrag;
+layout(location = 3) flat out uint materialIndexFrag;
 
 layout(set = 0, binding = 0) uniform readonly RasterUbo {
 	mat4 projection;
 	mat4 view;
 } ubo;
 
-layout(set = 0, binding = 1) buffer readonly MaterialSsbo {
-  Material materials[];
-};
-
-layout(set = 0, binding = 2) buffer readonly TransformationSsbo {
+layout(set = 0, binding = 1) buffer readonly TransformationSsbo {
   Transformation transformations[];
 };
 
@@ -34,6 +29,5 @@ void main() {
 	positionFrag = positionWorld.xyz;
 	textCoordFrag = textCoord.xy;
 	normalFrag = normalize(mat3(transformations[transformIndex].normalMatrix) * normal.xyz);
-	albedoColorFrag = materials[materialIndex].baseColor;
-	materialFrag = vec3(materials[materialIndex].metallicness, materials[materialIndex].roughness, materials[materialIndex].fresnelReflect);
+	materialIndexFrag = materialIndex;
 }

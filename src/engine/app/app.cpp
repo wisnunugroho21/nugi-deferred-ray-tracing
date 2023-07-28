@@ -333,7 +333,8 @@ namespace nugiEngine {
 
 		this->primitiveModel->createBuffers();
 
-		// this->textures.emplace_back(std::make_unique<EngineTexture>(this->device, "textures/viking_room.png"));
+		this->textures.emplace_back(std::make_unique<EngineTexture>(this->device, "textures/viking_room.png", VK_FILTER_LINEAR, 
+        VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_TRUE, VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK, VK_COMPARE_OP_NEVER, VK_SAMPLER_MIPMAP_MODE_LINEAR));
 		this->numLights = static_cast<uint32_t>(lights->size());
 	}
 
@@ -443,18 +444,23 @@ namespace nugiEngine {
 			this->accumulateImages->getImagesInfo()
 		};
 
-		std::vector<VkDescriptorImageInfo> resourcesInfo[5] = {
+		std::vector<VkDescriptorImageInfo> resourcesInfo[4] = {
 			this->forwardPassSubRenderer->getPositionInfoResources(),
-			this->forwardPassSubRenderer->getTextCoordInfoResources(),
 			this->forwardPassSubRenderer->getNormalInfoResources(),
 			this->forwardPassSubRenderer->getAlbedoColorInfoResources(),
 			this->forwardPassSubRenderer->getMaterialInfoResources()
 		};
 
+		std::vector<VkDescriptorImageInfo> texturesInfo[1];
+		for (auto &&texture : this->textures) {
+			texturesInfo->emplace_back(texture->getDescriptorInfo(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+		}
+
 		this->samplingDescSet = std::make_unique<EngineSamplingDescSet>(this->device, this->renderer->getDescriptorPool(), imagesInfo);
-		this->forwardPassDescSet = std::make_unique<EngineForwardPassDescSet>(this->device, this->renderer->getDescriptorPool(), this->rasterUniform->getBuffersInfo(), forwardPassbuffersInfo);
+		this->forwardPassDescSet = std::make_unique<EngineForwardPassDescSet>(this->device, this->renderer->getDescriptorPool(), this->rasterUniform->getBuffersInfo(), 
+			forwardPassbuffersInfo, texturesInfo);
 		this->rayTraceDescSet = std::make_unique<EngineRayTraceDescSet>(this->device, this->renderer->getDescriptorPool(), this->rayTraceUniforms->getBuffersInfo(), 
-			this->rayTraceImage->getImagesInfo(), rayTracebuffersInfo, resourcesInfo);
+			this->rayTraceImage->getImagesInfo(), rayTracebuffersInfo, resourcesInfo, texturesInfo);
 
 		this->traceRayRender = std::make_unique<EngineTraceRayRenderSystem>(this->device, this->rayTraceDescSet->getDescSetLayout(), width, height, 1);
 		this->forwardPassRender = std::make_unique<EngineForwardPassRenderSystem>(this->device, this->forwardPassSubRenderer->getRenderPass(), this->forwardPassDescSet->getDescSetLayout());
