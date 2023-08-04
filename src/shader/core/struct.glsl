@@ -34,6 +34,11 @@ struct TriangleLight {
   vec3 color;
 };
 
+struct SunLight {
+  vec3 direction;
+  vec3 color;
+};
+
 struct BvhNode {
   uint leftNode;
   uint rightNode;
@@ -46,15 +51,19 @@ struct BvhNode {
 
 struct Material {
   vec3 baseColor;
+  vec3 baseNormal;
+
 	float metallicness;
   float roughness;
   float fresnelReflect;
-  
+
   uint colorTextureIndex;
+  uint normalTextureIndex;
 };
 
 struct Transformation {
   mat4 pointMatrix;
+  mat4 dirMatrix;
   mat4 pointInverseMatrix;
   mat4 dirInverseMatrix;
   mat4 normalMatrix;
@@ -75,9 +84,9 @@ struct FaceNormal {
 struct HitRecord {
   bool isHit;
   uint hitIndex;
+  vec3 point;
 
   float t;
-  vec3 point;
 
   vec3 color;
   vec3 normal;
@@ -92,10 +101,6 @@ struct ShadeRecord {
   float pdf;
 };
 
-struct RadianceRecord {
-  float colorIrradiance;
-};
-
-#define pi 3.14159265359
-#define FLT_MAX 3.402823466e+38
-#define FLT_MIN 1.175494351e-38
+float pi = 3.14159265359;
+float FLT_MAX = 3.402823e+38;
+float FLT_MIN = 1.175494e-38;

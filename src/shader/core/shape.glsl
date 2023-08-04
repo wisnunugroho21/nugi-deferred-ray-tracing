@@ -1,7 +1,21 @@
+// ------------- Sky Light ------------- 
+
+vec3 sunLightFaceNormal(vec3 rayDirection, vec3 origin) {
+  return -1.0f * normalize(rayDirection);
+}
+
+float sunLightArea() {
+  return 1.0f;
+}
+
+vec3 sunLightRandomDirection(SunLight light) {
+  return light.direction;
+}
+
 // ------------- Point Light ------------- 
 
 vec3 pointLightFaceNormal(PointLight light, vec3 rayDirection, vec3 origin) {
-  vec3 outwardNormal = normalize(light.position - origin);
+  vec3 outwardNormal = normalize(light.position.xyz - origin);
   return setFaceNormal(rayDirection, outwardNormal);
 }
 
@@ -10,7 +24,7 @@ float pointLightArea() {
 }
 
 vec3 pointLightRandomDirection(PointLight light, vec3 origin) {
-  return light.position - origin;
+  return light.position.xyz - origin;
 }
 
 // ------------- Triangle Light -------------
@@ -48,33 +62,6 @@ vec3 triangleLightRandomDirection(TriangleLight light, vec3 origin, uint additio
 }
 
 // ------------- Triangle -------------
-
-vec3 triangleOffsetRayOrigin(vec3 hitPoint, vec3 point0, vec3 point1, vec3 point2,
-  vec2 hitUV, vec3 triangleNormal, vec3 rayDirection) 
-{
-  vec3 hitPointError = abs(hitUV.s * point0) + abs(hitUV.t * point1) + abs((1.0f - hitUV.s - hitUV.t) * point2);
-  hitPointError *= gamma(7);
-
-  float d = dot(abs(triangleNormal), hitPointError);
-  vec3 offset = d * triangleNormal;
-
-  if (dot(rayDirection, triangleNormal) < 0.0f) {
-    offset *= -1.0f;
-  }
-
-  vec3 po = hitPoint + offset;
-
-  if (offset.x > 0) po.x = nextFloatUp(po.x);
-  else if (offset.x < 0) po.x = nextFloatDown(po.x);
-
-  if (offset.y > 0) po.y = nextFloatUp(po.y);
-  else if (offset.y < 0) po.y = nextFloatDown(po.y);
-
-  if (offset.z > 0) po.z = nextFloatUp(po.z);
-  else if (offset.z < 0) po.z = nextFloatDown(po.z);
-
-  return po;
-}
 
 vec3 triangleFaceNormal(uvec3 triIndices, vec3 rayDirection) {
   vec3 v0v1 = vertices[triIndices.y].position.xyz - vertices[triIndices.x].position.xyz;

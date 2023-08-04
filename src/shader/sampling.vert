@@ -1,11 +1,7 @@
 #version 460
 
-layout(location = 0) in vec4 position;
-layout(location = 1) in vec4 textCoord;
-layout(location = 2) in vec4 normal;
-layout(location = 3) in uint materialIndex;
-layout(location = 4) in uint transformIndex;
+layout(location = 0) in vec3 position;
 
 void main() {
-    gl_Position = position;
+    gl_Position = vec4(position, 1.0f);
 }

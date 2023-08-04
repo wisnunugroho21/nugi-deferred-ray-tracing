@@ -12,8 +12,6 @@ vec3 partialIntegrand(vec3 color, float brdf, float NoL) {
   return color * brdf * NoL;
 }
 
-// ------------- G Factor ------------- 
-
 float Gfactor(float NloL, float squareDistance, float area) {
   return NloL * area / squareDistance;
 }

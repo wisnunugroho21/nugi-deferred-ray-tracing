@@ -45,18 +45,22 @@ namespace nugiEngine {
 
   struct Material {
     alignas(16) glm::vec3 baseColor;
+    alignas(16) glm::vec3 baseNormal;
+
     float metallicness;
     float roughness;
     float fresnelReflect;
-    
+
     uint32_t colorTextureIndex;
+    uint32_t normalTextureIndex;
   };
 
   struct Transformation {
     glm::mat4 pointMatrix{1.0f};
+    glm::mat4 dirMatrix{1.0f};
     glm::mat4 pointInverseMatrix{1.0f};
     glm::mat4 dirInverseMatrix{1.0f};
-    glm::mat4 normalInverseMatrix{1.0f};
+    glm::mat4 normalMatrix{1.0f};
   };
 
   struct PointLight {
@@ -72,10 +76,16 @@ namespace nugiEngine {
     alignas(16) glm::vec3 color;
   };
 
+  struct SunLight {
+    alignas(16) glm::vec3 direction;
+    alignas(16) glm::vec3 color;
+  };
+
   struct RayTraceUbo {
     alignas(16) glm::vec3 origin;
     alignas(16) glm::vec3 background;
     uint32_t numLights = 0;
+    SunLight sunLight;
   };
 
   struct RasterUbo {

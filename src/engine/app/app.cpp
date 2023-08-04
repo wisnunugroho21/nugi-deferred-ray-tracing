@@ -308,10 +308,10 @@ namespace nugiEngine {
 
 		// ----------------------------------------------------------------------------
 
-		materials->emplace_back(Material{ glm::vec3(0.73f, 0.73f, 0.73f), 0.0f, 0.1f, 0.5f, 0u });
-		materials->emplace_back(Material{ glm::vec3(0.12f, 0.45f, 0.15f), 0.0f, 0.1f, 0.5f, 0u });
-		materials->emplace_back(Material{ glm::vec3(0.65f, 0.05f, 0.05f), 0.0f, 0.1f, 0.5f, 0u });
-		materials->emplace_back(Material{ glm::vec3(0.0f), 0.0f, 0.1f, 0.5f, 1u });
+		materials->emplace_back(Material{ glm::vec3(0.73f, 0.73f, 0.73f), glm::vec3(0.0f), 0.0f, 0.1f, 0.5f, 0u, 0u });
+		materials->emplace_back(Material{ glm::vec3(0.12f, 0.45f, 0.15f), glm::vec3(0.0f), 0.0f, 0.1f, 0.5f, 0u, 0u });
+		materials->emplace_back(Material{ glm::vec3(0.65f, 0.05f, 0.05f), glm::vec3(0.0f), 0.0f, 0.1f, 0.5f, 0u, 0u });
+		materials->emplace_back(Material{ glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f), 0.0f, 0.1f, 0.5f, 1u, 0u });
 
 		// ----------------------------------------------------------------------------
 
@@ -402,6 +402,16 @@ namespace nugiEngine {
     this->rasterUbo.projection[2][2] = far / (far - near);
     this->rasterUbo.projection[2][3] = 1.f;
     this->rasterUbo.projection[3][2] = -(far * near) / (far - near);
+
+		float phi = glm::radians(45.0f);
+		float theta = glm::radians(45.0f);
+
+		float sunX = glm::sin(theta) * glm::cos(phi);
+		float sunY = glm::sin(theta) * glm::sin(phi);
+		float sunZ = glm::cos(theta);
+
+		this->rayTraceUbo.sunLight.direction = glm::normalize(glm::vec3(sunX, sunY, sunZ));
+		this->rayTraceUbo.sunLight.color = glm::vec3(0.52f, 0.8f, 0.92f);
 	}
 
 	void EngineApp::recreateSubRendererAndSubsystem() {
